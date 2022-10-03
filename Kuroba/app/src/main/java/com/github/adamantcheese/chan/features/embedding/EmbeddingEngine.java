@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.embedders.base.Embedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.impl.*;
-import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.EmbedderLinkLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.ParserLinkLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -343,18 +342,15 @@ public class EmbeddingEngine
             final Bitmap icon
     ) {
         synchronized (commentCopy) {
-            StringUtils.replaceAll(commentCopy, (source) -> URL, (source) -> {
-                SpannableStringBuilder replacement = new SpannableStringBuilder();
-                CenteringImageSpan siteIcon = new CenteringImageSpan(getAppContext(), icon);
-                float height = sp(ChanSettings.fontSize.get());
-                int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
-                siteIcon.getDrawable().setBounds(0, 0, width, (int) height);
-
-                replacement
-                        .append(span(" ", siteIcon))
-                        .append(" ")
-                        .append(parseResult.title)
-                        .append(TextUtils.isEmpty(parseResult.duration) ? "" : " " + parseResult.duration);
+            StringUtils.replaceAll(commentCopy, () -> URL, (source) -> {
+                CharSequence replacement = StringUtils.prependIcon(getAppContext(),
+                        new SpannableStringBuilder()
+                                .append(" ")
+                                .append(parseResult.title)
+                                .append(TextUtils.isEmpty(parseResult.duration) ? "" : " " + parseResult.duration),
+                        icon,
+                        sp(ChanSettings.fontSize.get())
+                );
 
                 EmbedderLinkLinkable pl = new EmbedderLinkLinkable(theme, URL);
                 return span(replacement, pl);

@@ -13,7 +13,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.text.*;
 import android.text.method.ScrollingMovementMethod;
@@ -41,7 +40,6 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.html_styling.base.*;
-import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -153,8 +151,7 @@ public class PostThemedStyleActions {
             return new QuoteLinkable(theme, postNo);
         } else {
             ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
-            return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(
-                    theme,
+            return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(theme,
                     href.contains("post")
                             ? new ResolveLink((ExternalSiteArchive) post.board.site, board, postNo)
                             : threadLink
@@ -436,8 +433,7 @@ public class PostThemedStyleActions {
                 if (filterEngine.matchesBoard(f, post.board)) {
                     MatchResult result = filterEngine.getMatchResult(f, FilterType.COMMENT, text, false);
                     if (result != null) {
-                        builder.setSpan(
-                                new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
+                        builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
                                 result.start(),
                                 result.end(),
                                 makeSpanOptions(RENDER_NORMAL)
@@ -451,41 +447,35 @@ public class PostThemedStyleActions {
 
     private static final Pattern MAGNET_URL_PATTERN = Pattern.compile("magnet:\\?(?:\\w*=[^&\\v]*&?)+");
     private static final Pattern MAGNET_URL_NAME_PATTERN = Pattern.compile("dn=([^&\\v]*)");
-    public static PostThemedStyleAction MAGNET_LINKS = new PostThemedStyleAction() {
+    public static ThemedStyleAction MAGNET_LINKS = new ThemedStyleAction() {
         @NonNull
         @Override
         protected CharSequence style(
-                @NonNull Node node,
-                @Nullable CharSequence text,
-                @NonNull Theme theme,
-                @NonNull Post.Builder post,
-                @NonNull PostParser.PostParserCallback callback
+                @NonNull Node node, @Nullable CharSequence text, @NonNull Theme theme
         ) {
-            Matcher magnetMatcher = MAGNET_URL_PATTERN.matcher(text == null ? "" : text);
-            return StringUtils.replaceAll(text == null ? "" : text, source -> {
-                if (!magnetMatcher.find()) return null;
-                return magnetMatcher.group(0);
-            }, source -> {
-                Matcher displayNameMatcher = MAGNET_URL_NAME_PATTERN.matcher(source);
-                String displayName = "Magnet Link";
-                if (displayNameMatcher.find()) {
-                    try {
-                        displayName = URLDecoder.decode(displayNameMatcher.group(1), "UTF-8");
-                    } catch (Exception ignored) {}
-                }
-                SpannableStringBuilder replacement = new SpannableStringBuilder();
-                Bitmap icon = BitmapRepository.magnetIcon;
-                CenteringImageSpan siteIcon = new CenteringImageSpan(getAppContext(), icon);
-                float height = sp(ChanSettings.fontSize.get());
-                int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
-                siteIcon.getDrawable().setBounds(0, 0, width, (int) height);
+            CharSequence sourceText = text == null ? "" : text;
+            return StringUtils.replaceAll(sourceText,
+                    new StringUtils.MatcherTargetGenerator(MAGNET_URL_PATTERN, sourceText),
+                    source -> {
+                        Matcher displayNameMatcher = MAGNET_URL_NAME_PATTERN.matcher(source);
+                        String displayName = "Magnet Link";
+                        if (displayNameMatcher.find()) {
+                            try {
+                                displayName = URLDecoder.decode(displayNameMatcher.group(1), "UTF-8");
+                            } catch (Exception ignored) {}
+                        }
 
-                replacement.append(span(" ", siteIcon)).append(" ").append(displayName);
+                        CharSequence replacement = StringUtils.prependIcon(getAppContext(),
+                                new SpannableStringBuilder().append(displayName),
+                                BitmapRepository.magnetIcon,
+                                sp(ChanSettings.fontSize.get())
+                        );
 
-                // Set the linkable to be the entire length, including the icon
-                ParserLinkLinkable pl = new ParserLinkLinkable(theme, source.toString());
-                return span(replacement, pl);
-            }, false);
+                        ParserLinkLinkable pl = new ParserLinkLinkable(theme, source.toString());
+                        return span(replacement, pl);
+                    },
+                    false
+            );
         }
     };
 }

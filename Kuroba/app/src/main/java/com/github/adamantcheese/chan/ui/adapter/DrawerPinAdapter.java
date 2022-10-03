@@ -46,7 +46,6 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -120,10 +119,10 @@ public class DrawerPinAdapter
             }
 
             if (pin.archived) {
-                summary = PostHelper.prependIcon(context, summary, BitmapRepository.archivedIcon, sp(16));
+                summary = StringUtils.prependIcon(context, summary, BitmapRepository.archivedIcon, sp(16));
             }
             if (pin.isSticky) {
-                summary = PostHelper.prependIcon(context, summary, BitmapRepository.stickyIcon, sp(16));
+                summary = StringUtils.prependIcon(context, summary, BitmapRepository.stickyIcon, sp(16));
             }
 
             holder.title.getLayoutParams().height = WRAP_CONTENT;

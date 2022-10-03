@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.utils;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.*;
 import android.text.format.DateUtils;
 import android.text.style.CharacterStyle;
@@ -10,6 +12,7 @@ import android.util.Base64;
 import androidx.annotation.*;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
@@ -362,7 +365,7 @@ public class StringUtils {
         int index = 0;
         while (true) {
             // generate an item to be replaced
-            CharSequence target = targetGenerator.generateTarget(source);
+            CharSequence target = targetGenerator.nextTarget();
             if (TextUtils.isEmpty(target)) break;
 
             // search from the last known replacement location
@@ -380,14 +383,38 @@ public class StringUtils {
     }
 
     public static CharSequence replaceAll(CharSequence source, CharSequence needle, CharSequence replacement) {
-        return replaceAll(source, (source1) -> needle, (source2) -> replacement, false);
+        return replaceAll(source, () -> needle, (source1) -> replacement, false);
     }
 
     public interface TargetGenerator {
-        CharSequence generateTarget(CharSequence source);
+        CharSequence nextTarget();
     }
 
     public interface ReplacementGenerator {
         CharSequence generateReplacement(CharSequence source);
+    }
+
+    public static class MatcherTargetGenerator
+            implements TargetGenerator {
+        private final Matcher matcher;
+
+        public MatcherTargetGenerator(Pattern matcherFrom, CharSequence forText) {
+            matcher = matcherFrom.matcher(forText);
+        }
+
+        @Override
+        public CharSequence nextTarget() {
+            if (matcher.find()) return matcher.group(0);
+            return null;
+        }
+    }
+
+    public static CharSequence prependIcon(
+            @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, float height
+    ) {
+        CenteringImageSpan imageSpan = new CenteringImageSpan(context, bitmap);
+        int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
+        imageSpan.getDrawable().setBounds(0, 0, width, (int) height);
+        return TextUtils.concat(span(" ", imageSpan), " ", total);
     }
 }

@@ -36,16 +36,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class PostHelper {
-    public static CharSequence prependIcon(
-            @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, float height
-    ) {
-        CenteringImageSpan imageSpan = new CenteringImageSpan(context, bitmap);
-        int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
-        imageSpan.getDrawable().setBounds(0, 0, width, (int) height);
-        return TextUtils.concat(span(" ", imageSpan), " ", total);
-    }
-
-    public static String getTitle(@Nullable Post post, @NonNull Loadable loadable) {
+    public static String getTitle(@Nullable Post post, Loadable loadable) {
         if (post != null) {
             if (!TextUtils.isEmpty(post.subject)) {
                 return post.subject.toString();
