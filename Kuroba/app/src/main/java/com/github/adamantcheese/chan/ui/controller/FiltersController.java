@@ -322,7 +322,11 @@ public class FiltersController
         @Override
         public void onBindViewHolder(FilterHolder holder, int position) {
             Filter filter = displayList.get(position);
-            holder.text.setText(filter.label.isEmpty() ? filter.pattern : filter.label + " - " + filter.pattern);
+            String negativeExtra =
+                    TextUtils.isEmpty(filter.negativePattern) ? "" : " but not " + filter.negativePattern;
+            holder.text.setText(filter.label.isEmpty()
+                    ? filter.pattern + negativeExtra
+                    : filter.label + " - " + filter.pattern + negativeExtra);
             holder.text.setTextColor(getAttrColor(context,
                     filter.enabled ? android.R.attr.textColorPrimary : android.R.attr.textColorHint
             ));

@@ -231,6 +231,7 @@ constructor(
                     exportedFilter.isEnabled,
                     exportedFilter.type,
                     exportedFilter.pattern,
+                    exportedFilter.negativePattern,
                     exportedFilter.isAllBoards,
                     exportedFilter.boards,
                     exportedFilter.action,
@@ -331,6 +332,13 @@ constructor(
                 filter.label = ""
             }
         }
+
+        if (version < 8) {
+            for (filter in appSettingUpgradeCopy.exportedFilters) {
+                filter.negativePattern = ""
+            }
+        }
+
         return appSettingUpgradeCopy
     }
 
@@ -437,6 +445,7 @@ constructor(
                     it.enabled,
                     it.type,
                     it.pattern,
+                    it.negativePattern,
                     it.allBoards,
                     it.boards,
                     it.action,
@@ -559,6 +568,6 @@ constructor(
 
         // Don't forget to change this when changing any of the Export models.
         // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-        const val CURRENT_EXPORT_SETTINGS_VERSION = 7
+        const val CURRENT_EXPORT_SETTINGS_VERSION = 8
     }
 }

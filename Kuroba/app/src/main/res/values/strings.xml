@@ -195,6 +195,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_filter">Filter</string>
     <string name="filter_action">Action</string>
     <string name="filter_pattern">Pattern</string>
+    <string name="filter_neg_pattern">Negative pattern</string>
     <string name="filter_match_test">Test the pattern</string>
     <string name="filter_boards">Boards</string>
     <string name="filter_types">Types</string>

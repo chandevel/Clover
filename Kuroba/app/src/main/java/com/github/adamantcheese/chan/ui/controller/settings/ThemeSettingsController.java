@@ -52,6 +52,7 @@ import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
@@ -66,8 +67,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.*;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -372,31 +372,8 @@ public class ThemeSettingsController
 
         @Override
         public void onBindViewHolder(@NonNull ThemePostsAdapter.ThemePreviewHolder holder, int position) {
-            PostParser postParser = new PostParser(new ChanCommentAction()).withOverrideFilters(new Filter(true,
-                    FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
-                    "testing",
-                    true,
-                    "",
-                    COLOR.ordinal(),
-                    getAttrColor(holder.itemView.getContext(), R.attr.colorAccent) & 0x7FFFFFFF,
-                    false,
-                    0,
-                    false,
-                    false,
-                    ""
-            ), new Filter(true,
-                    FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
-                    "spacer",
-                    true,
-                    "",
-                    COLOR.ordinal(),
-                    getAttrColor(holder.itemView.getContext(), R.attr.post_quote_color) & 0x7FFFFFFF,
-                    false,
-                    1,
-                    false,
-                    false,
-                    ""
-            ));
+            PostParser postParser =
+                    new PostParser(new ChanCommentAction()).withOverrideFilters(generateFilters(holder.itemView.getContext()));
             List<Post> posts = new ArrayList<>();
             for (Post.Builder builder : generatePosts()) {
                 posts.add(postParser.parse(builder, holder.theme, new PostParser.PostParserCallback() {
@@ -610,6 +587,38 @@ public class ThemeSettingsController
             return Arrays.asList(builder1, builder2, builder3, builder4, builder5);
         }
 
+        private Filters generateFilters(Context context) {
+            Filter filter1 = new Filter(true,
+                    FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
+                    "testing",
+                    "",
+                    true,
+                    "",
+                    COLOR.ordinal(),
+                    getAttrColor(context, R.attr.colorAccent) & 0x7FFFFFFF,
+                    false,
+                    0,
+                    false,
+                    false,
+                    ""
+            );
+            Filter filter2 = new Filter(true,
+                    FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
+                    "spacer",
+                    "",
+                    true,
+                    "",
+                    COLOR.ordinal(),
+                    getAttrColor(context, R.attr.post_quote_color) & 0x7FFFFFFF,
+                    false,
+                    1,
+                    false,
+                    false,
+                    ""
+            );
+            return new Filters(filter1, filter2);
+        }
+
         private class ThemePreviewHolder
                 extends RecyclerView.ViewHolder {
             private final Theme theme;
@@ -620,6 +629,7 @@ public class ThemeSettingsController
                 super(itemView);
                 this.theme = theme;
                 recyclerView = itemView.findViewById(R.id.posts_recycler);
+                recyclerView.addItemDecoration(FastScrollerHelper.create(recyclerView));
                 toolbar = itemView.findViewById(R.id.theme_toolbar);
             }
         }

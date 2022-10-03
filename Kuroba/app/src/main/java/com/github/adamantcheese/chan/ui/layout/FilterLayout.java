@@ -55,6 +55,7 @@ public class FilterLayout
     private TextView typeText;
     private TextView boardsSelector;
     private TextView pattern;
+    private TextView negativePattern;
     private TextView patternPreview;
     private ImageView patternPreviewStatus;
     private TextView actionText;
@@ -124,6 +125,23 @@ public class FilterLayout
             public void afterTextChanged(Editable s) {
             }
         });
+        negativePattern = findViewById(R.id.negative_pattern);
+        negativePattern.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filter.negativePattern = s.toString();
+                updateFilterValidity();
+                updatePatternPreview();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         patternPreview = findViewById(R.id.pattern_preview);
         patternPreview.addTextChangedListener(new TextWatcher() {
             @Override
@@ -158,6 +176,7 @@ public class FilterLayout
 
         label.setText(filter.label);
         pattern.setText(filter.pattern);
+        negativePattern.setText(filter.negativePattern);
 
         updateFilterValidity();
         updateFilterType();
@@ -330,6 +349,8 @@ public class FilterLayout
         int extraFlags = (filter.type & FilterType.FLAG_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
         boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, extraFlags) != null;
         pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
+        boolean negValid = !TextUtils.isEmpty(filter.negativePattern) && filterEngine.compile(filter.negativePattern, extraFlags) != null;
+        negativePattern.setError(negValid ? null : getString(R.string.filter_invalid_pattern));
 
         if (callback != null) {
             callback.setSaveButtonEnabled(valid);

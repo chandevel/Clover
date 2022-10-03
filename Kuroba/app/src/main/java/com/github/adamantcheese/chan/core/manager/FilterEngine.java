@@ -177,7 +177,7 @@ public class FilterEngine {
                 flagCode = icon.code;
                 break;
             }
-            }
+        }
         if (!flagCode.isEmpty() && matches(filter, FLAG_CODE, flagCode, false)) {
             return true;
         }
@@ -204,9 +204,11 @@ public class FilterEngine {
         if (text == null) return null;
 
         Pattern pattern = null;
+        Pattern negativePattern = null;
         if (!forceCompile) {
             synchronized (patternCache) {
                 pattern = patternCache.get(filter.pattern);
+                negativePattern = patternCache.get(filter.negativePattern);
             }
         }
 
@@ -221,9 +223,24 @@ public class FilterEngine {
             }
         }
 
+        if (negativePattern == null) {
+            int extraFlags = type == FLAG_CODE ? Pattern.CASE_INSENSITIVE : 0;
+            negativePattern = compile(filter.negativePattern, extraFlags);
+            if (negativePattern != null) {
+                synchronized (patternCache) {
+                    patternCache.put(filter.negativePattern, negativePattern);
+                }
+                Logger.d(this, "Resulting pattern: " + negativePattern.pattern());
+            }
+        }
+
         if (pattern != null) {
             Matcher matcher = pattern.matcher(text);
             boolean matched = matcher.find();
+            if (negativePattern != null) {
+                Matcher negativeMatcher = negativePattern.matcher(text);
+                matched = matched && !negativeMatcher.find();
+            }
             return matched ? matcher.toMatchResult() : null;
         } else {
             Logger.e(this, "Invalid pattern");

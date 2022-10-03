@@ -76,15 +76,8 @@ public class PostParser {
         getFiltersCallback = () -> filterEngine.getEnabledFilters();
     }
 
-    public PostParser withOverrideFilters(Filter... filters) {
-        getFiltersCallback = new GetFiltersCallback() {
-            private final Filters filterList = new Filters(filters);
-
-            @Override
-            public Filters getFilterList() {
-                return filterList;
-            }
-        };
+    public PostParser withOverrideFilters(Filters filters) {
+        getFiltersCallback = () -> filters;
         return this;
     }
 

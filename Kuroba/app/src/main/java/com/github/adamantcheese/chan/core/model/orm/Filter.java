@@ -39,6 +39,9 @@ public class Filter
     @DatabaseField(canBeNull = false)
     public String pattern;
 
+    @DatabaseField(columnName = "negative_pattern", canBeNull = false)
+    public String negativePattern = "";
+
     @DatabaseField(canBeNull = false)
     public boolean allBoards = true;
 
@@ -77,6 +80,7 @@ public class Filter
             boolean enabled,
             int type,
             String pattern,
+            String negativePattern,
             boolean allBoards,
             String boards,
             int action,
@@ -90,6 +94,7 @@ public class Filter
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;
+        this.negativePattern = negativePattern;
         this.allBoards = allBoards;
         this.boards = boards;
         this.action = action;
@@ -108,6 +113,7 @@ public class Filter
                 enabled,
                 type,
                 pattern,
+                negativePattern,
                 allBoards,
                 boards,
                 action,

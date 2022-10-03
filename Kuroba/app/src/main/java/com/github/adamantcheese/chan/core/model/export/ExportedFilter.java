@@ -29,6 +29,9 @@ public class ExportedFilter {
     @SerializedName("pattern")
     @Nullable
     private final String pattern;
+    @SerializedName("negative_pattern")
+    @Nullable
+    private String negativePattern;
     @SerializedName("all_boards")
     private final boolean allBoards;
     @SerializedName("boards")
@@ -53,6 +56,7 @@ public class ExportedFilter {
             boolean enabled,
             int type,
             @NonNull String pattern,
+            @NonNull String negativePattern,
             boolean allBoards,
             @NonNull String boards,
             int action,
@@ -66,6 +70,7 @@ public class ExportedFilter {
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;
+        this.negativePattern = negativePattern;
         this.allBoards = allBoards;
         this.boards = boards;
         this.action = action;
@@ -94,6 +99,15 @@ public class ExportedFilter {
         return pattern;
     }
 
+    @Nullable
+    public String getNegativePattern() {
+        return negativePattern;
+    }
+
+    public void setNegativePattern(String negativePattern) {
+        this.negativePattern = negativePattern == null ? "" : negativePattern;
+    }
+
     public boolean isAllBoards() {
         return allBoards;
     }
@@ -103,7 +117,7 @@ public class ExportedFilter {
         return boards;
     }
 
-    public void setBoards(String boards) {
+    public void setBoards(@NonNull String boards) {
         this.boards = boards;
     }
 
