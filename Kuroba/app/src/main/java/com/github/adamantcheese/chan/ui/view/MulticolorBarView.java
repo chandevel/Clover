@@ -59,6 +59,7 @@ public class MulticolorBarView
     public void setColors(int[] colors) {
         this.colors = colors;
         invalidate();
+        requestLayout();
     }
 
     @Override
@@ -73,6 +74,19 @@ public class MulticolorBarView
             } else {
                 canvas.drawRect(i * translationStep, 0f, (i + 1) * translationStep, getHeight(), paint);
             }
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (colors.length == 0) {
+            if (renderVertical) {
+                setMeasuredDimension(0, getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+            } else {
+                setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec), 0);
+            }
+        } else {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
 }
