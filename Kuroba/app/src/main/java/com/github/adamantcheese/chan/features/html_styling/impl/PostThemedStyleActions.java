@@ -24,6 +24,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.*;
@@ -369,22 +370,30 @@ public class PostThemedStyleActions {
             for (ParserLinkLinkable linkable : linkables) {
                 Matcher matcher = IMAGE_URL_PATTERN.matcher(linkable.value);
                 if (matcher.matches()) {
-                    boolean noThumbnail = StringUtils.endsWithAny(linkable.value, NO_THUMB_LINK_SUFFIXES);
-
                     HttpUrl imageUrl = HttpUrl.get(linkable.value);
+                    boolean noThumbnail = StringUtils.endsWithAny(linkable.value, NO_THUMB_LINK_SUFFIXES);
+                    HttpUrl thumbnailUrl = noThumbnail ? INTERNAL_SPOILER_THUMB_URL : imageUrl;
+
+                    // TODO maybe generalize this?
+                    // imgur provides thumbnails, so grab those here; 160x160 to be similar to 4chan's 125x125
+                    if ("imgur.com".equals(thumbnailUrl.topPrivateDomain())) {
+                        Pair<String, String> split = StringUtils.splitExtension(thumbnailUrl);
+                        thumbnailUrl = HttpUrl.get(split.first + "t." + split.second);
+                    }
+
                     // ignore saucenao links, not actual images
-                    if (imageUrl.host().equals("saucenao.com")) {
+                    if ("saucenao.com".equals(imageUrl.topPrivateDomain())) {
                         continue;
                     }
 
-                    PostImage inlinedImage = new PostImage.Builder().serverFilename(matcher.group(1))
-                            //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
-                            .thumbnailUrl(noThumbnail ? INTERNAL_SPOILER_THUMB_URL : HttpUrl.get(linkable.value))
-                            .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
+                    PostImage inlinedImage = new PostImage.Builder()
+                            .serverFilename(matcher.group(1))
                             .imageUrl(imageUrl)
+                            .thumbnailUrl(thumbnailUrl)
+                            .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
                             .filename(matcher.group(1))
                             .extension(matcher.group(2))
-                            .spoiler(true)
+                            .spoiler(thumbnailUrl == imageUrl)
                             .isInlined()
                             .size(-1)
                             .build();

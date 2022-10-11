@@ -10,6 +10,7 @@ import android.text.style.CharacterStyle;
 import android.util.Base64;
 
 import androidx.annotation.*;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
@@ -70,22 +71,25 @@ public class StringUtils {
 
     public static String maskImageUrl(HttpUrl url) {
         if (url == null) return "";
+        Pair<String, String> split = splitExtension(url);
+        return split.first.substring(0, split.first.length() - 3) + "XXX." + split.second;
+    }
+
+    public static Pair<String, String> splitExtension(HttpUrl url) {
+        if (url == null) return new Pair<>("", "");
 
         String result = url.toString();
         if (result.length() < 4) {
-            return result;
+            return new Pair<>(result, "");
         }
 
         String extension = Files.getFileExtension(result);
 
-        int charactersToTrim = 4 + extension.length();
-
-        if (result.length() < charactersToTrim) {
-            return result;
+        if (result.length() < extension.length()) {
+            return new Pair<>(result, "");
         }
 
-        String trimmedUrl = result.substring(0, result.length() - charactersToTrim);
-        return trimmedUrl + "XXX." + extension;
+        return new Pair<>(result.substring(0, result.length() - extension.length() - 1), extension);
     }
 
     public static boolean isAnyIgnoreCase(String s, String... strings) {

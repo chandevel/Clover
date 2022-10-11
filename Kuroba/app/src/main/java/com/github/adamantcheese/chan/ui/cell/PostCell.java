@@ -68,8 +68,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.DPSpacingItemDecoration;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import okhttp3.HttpUrl;
 
@@ -307,8 +306,8 @@ public class PostCell
                 new AbsoluteSizeSpanHashed((int) detailsSizePx)
         ));
 
-        for (PostImage image : post.images) {
-            if (ChanSettings.textOnly.get()) continue;
+        List<PostImage> imagesForTitle = ChanSettings.textOnly.get() ? Collections.emptyList() : post.images;
+        for (PostImage image : imagesForTitle) {
             boolean postFileName = ChanSettings.postFilename.get();
             if (postFileName) {
                 //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
@@ -329,8 +328,16 @@ public class PostCell
                 SpannableStringBuilder fileInfo = new SpannableStringBuilder();
                 fileInfo.append(postFileName ? " " : "\n");
                 fileInfo.append(image.extension.toUpperCase());
-                fileInfo.append(image.isInlined ? "" : " " + getReadableFileSize(image.size));
-                fileInfo.append(image.isInlined ? "" : " " + image.imageWidth + "x" + image.imageHeight);
+                if (image.size > 0) {
+                    fileInfo.append(" ").append(getReadableFileSize(image.size));
+                }
+                if (image.imageWidth > 0 && image.imageHeight > 0) {
+                    fileInfo
+                            .append(" ")
+                            .append(String.valueOf(image.imageWidth))
+                            .append("x")
+                            .append(String.valueOf(image.imageHeight));
+                }
                 titleParts.append(span(fileInfo,
                         new ForegroundColorSpanHashed(detailsColor),
                         new AbsoluteSizeSpanHashed((int) detailsSizePx)

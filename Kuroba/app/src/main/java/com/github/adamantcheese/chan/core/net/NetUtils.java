@@ -652,7 +652,8 @@ public class NetUtils {
     public static Call makeHeadersRequest(
             @NonNull final HttpUrl url, @NonNull final ResponseResult<Headers> result
     ) {
-        Call call = applicationClient.newCall(new Request.Builder().url(url).head().build());
+        Call call =
+                applicationClient.newCall(new Request.Builder().url(url).head().cacheControl(ONE_YEAR_CACHE).build());
         BackgroundThreadResponseResult<Headers> wrap = new BackgroundThreadResponseResult<>(result);
         call.enqueue(new Callback() {
             @Override

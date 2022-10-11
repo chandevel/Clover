@@ -141,7 +141,7 @@ public class PostUtils {
             text.append("\nSize: ").append(getReadableFileSize(image.size));
         }
 
-        if (image.spoiler() && !image.isInlined) { //all linked files are spoilered, don't say that
+        if (image.spoiler()) {
             text.append("\nSpoilered");
         }
 
