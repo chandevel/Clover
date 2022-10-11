@@ -18,7 +18,7 @@
         android:maxLines="1"
         android:textColor="?android:textColor"
         android:textColorHint="?android:textColorHint"
-        android:textSize="18dp"
+        android:textSize="18sp"
         tools:ignore="Autofill,SpUsage" />
 
     <ImageView

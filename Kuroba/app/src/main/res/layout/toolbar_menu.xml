@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/white"
-            android:textSize="20dp"
+            android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@id/subtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -50,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/white"
-            android:textSize="12dp"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="Anime &amp; Manga" />
