@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.cell;
 
 import static android.text.TextUtils.isEmpty;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.RelativeLayout.RIGHT_OF;
@@ -571,7 +572,16 @@ public class PostCell
             ShapeablePostImageView thumbnailView = (ShapeablePostImageView) LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.subcell_post_cell_image, parent, false);
-            thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
+            if (ChanSettings.useStaggeredPostImages.get()) {
+                thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), WRAP_CONTENT));
+                thumbnailView.setAdjustViewBounds(true);
+                thumbnailView.setMaxHeight(getDimen(c, R.dimen.stagger_cell_thumbnail_max_size));
+            } else {
+                thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c),
+                        getThumbnailSize(c)
+                ));
+                thumbnailView.setAdjustViewBounds(false);
+            }
             return new PostImageViewHolder(thumbnailView);
         }
 

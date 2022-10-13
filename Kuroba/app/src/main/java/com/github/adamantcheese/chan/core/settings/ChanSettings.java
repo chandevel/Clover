@@ -159,6 +159,7 @@ public class ChanSettings {
     public static final IntegerSetting thumbnailSize;
     public static final IntegerSetting fontSize;
     public static final BooleanSetting shiftPostFormat;
+    public static final BooleanSetting useStaggeredPostImages;
     public static final BooleanSetting accessibleInfo;
     public static final BooleanSetting postFullDate;
     public static final BooleanSetting postFileInfo;
@@ -342,6 +343,7 @@ public class ChanSettings {
             thumbnailSize = new IntegerSetting(p, "preference_thumbnail", 100);
             fontSize = new IntegerSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? 16 : 14);
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
+            useStaggeredPostImages = new BooleanSetting(p, "use_staggered_post_images", false);
             accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
             postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
             postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);

@@ -230,6 +230,14 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.useStaggeredPostImages,
+                    "Stagger post cell images",
+                    "Allows images to more accurately match their height, rather than being square. "
+                            + "Works best with media prefetching enabled; "
+                            + "not really compatible with shift-post formatting for now"
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.accessibleInfo,
                     "Enable accessible post info",
                     "Enabling places info in the first post option menu"
