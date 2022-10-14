@@ -377,6 +377,7 @@ public class NetUtils {
         if (result == null) {
             runnable.setException(new NullPointerException("Bitmap returned is null"));
         } else {
+            result.prepareToDraw();
             imageCache.put(new Triple<>(url, requestWidth, requestedHeight), result);
             runnable.setBitmap(result);
         }

@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
         android:id="@+id/thumbnail_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         app:strokeColor="@color/transparent"
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
