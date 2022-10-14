@@ -336,11 +336,13 @@ public class MultiImageView
 
     private void onThumbnailBitmap(Bitmap bitmap) {
         if (!hasContent || mode == Mode.LOWRES) {
-            ImageView thumbnail = new ImageView(getContext());
+            ShapeablePostImageView thumbnail = new ShapeablePostImageView(getContext());
+            thumbnail.setType(postImage);
             thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
             thumbnail.setImageBitmap(bitmap);
             thumbnail.setOnClickListener(null);
             thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
+            thumbnail.disableRipple();
 
             onModeLoaded(Mode.LOWRES, thumbnail);
         }

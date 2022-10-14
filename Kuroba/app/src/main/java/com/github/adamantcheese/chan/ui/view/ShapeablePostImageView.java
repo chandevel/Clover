@@ -58,6 +58,12 @@ public class ShapeablePostImageView
         invalidate();
     }
 
+    public void disableRipple() {
+        unscheduleDrawable(foregroundRipple);
+        useRipple = false;
+        foregroundRipple.setCallback(null);
+    }
+
     @Override
     public void setClickable(boolean clickable) {
         if (clickable != isClickable()) {
@@ -70,9 +76,7 @@ public class ShapeablePostImageView
                     foregroundRipple.setState(getDrawableState());
                 }
             } else {
-                unscheduleDrawable(foregroundRipple);
-                useRipple = false;
-                foregroundRipple.setCallback(null);
+                disableRipple();
             }
             requestLayout();
             invalidate();
