@@ -240,9 +240,7 @@ public class PostParser {
          * @param postNo the post no
          * @return {@code true} if referring to a saved post, {@code false} otherwise.
          */
-        default boolean isSaved(int postNo) {
-            return false;
-        }
+        boolean isSaved(int postNo);
 
         /**
          * Is the post no from this thread.
@@ -250,9 +248,7 @@ public class PostParser {
          * @param postNo the post no
          * @return {@code true} if referring to a post in the thread, {@code false} otherwise.
          */
-        default boolean isInternal(int postNo) {
-            return false;
-        }
+        boolean isInternal(int postNo);
 
         /**
          * Is the post no something the user has removed.
@@ -260,9 +256,7 @@ public class PostParser {
          * @param postNo the post no
          * @return {@code true} if referring to a removed post, {@code false} otherwise.
          */
-        default boolean isRemoved(int postNo) {
-            return false;
-        }
+        boolean isRemoved(int postNo);
     }
 
     public interface GetFiltersCallback {

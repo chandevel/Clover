@@ -81,7 +81,7 @@ public class ThemeSettingsController
 
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;
-        dummyLoadable.lastViewed = 234567890;
+        dummyLoadable.lastViewed = 34567;
     }
 
     private final PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
@@ -256,7 +256,7 @@ public class ThemeSettingsController
         final AlertDialog dialog = getDefaultAlertBuilder(context)
                 .setTitle("Help")
                 .setMessage(R.string.setting_theme_explanation)
-                .setPositiveButton("Close", null)
+                .setPositiveButton(R.string.close, null)
                 .show();
         dialog.setCanceledOnTouchOutside(true);
     }
@@ -374,23 +374,38 @@ public class ThemeSettingsController
         public void onBindViewHolder(@NonNull ThemePostsAdapter.ThemePreviewHolder holder, int position) {
             PostParser postParser =
                     new PostParser(new ChanCommentAction()).withOverrideFilters(generateFilters(holder.itemView.getContext()));
-            List<Post> posts = new ArrayList<>();
-            for (Post.Builder builder : generatePosts()) {
-                posts.add(postParser.parse(builder, holder.theme, new PostParser.PostParserCallback() {
+            List<Post.Builder> unParsedPosts = generatePosts();
+            List<Post> parsedPosts = new ArrayList<>();
+            for (Post.Builder builder : unParsedPosts) {
+                parsedPosts.add(postParser.parse(builder, holder.theme, new PostParser.PostParserCallback() {
+                    @Override
+                    public boolean isSaved(int postNo) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isInternal(int postNo) {
+                        for (Post.Builder toCheck : unParsedPosts) {
+                            if (toCheck.no == postNo) return true;
+                        }
+                        return false;
+                    }
+
                     @Override
                     public boolean isRemoved(int postNo) {
-                        return postNo == 666;
+                        return postNo == 45678;
                     }
                 }));
             }
-            posts.get(0).repliesFrom.add(posts.get(2).no); // add reply to first post pointing to last post
-            posts.get(3).deleted = true; // mark as deleted
-            ChanThread thread = new ChanThread(dummyLoadable, posts);
+            parsedPosts.get(1).repliesFrom.add(parsedPosts.get(3).no); // add reply
+            parsedPosts.get(3).deleted = true;
+            ChanThread thread = new ChanThread(dummyLoadable, parsedPosts);
 
             for (Post p : thread.getPosts()) {
                 QuoteLinkable[] linkables = p.getQuoteLinkables();
                 for (QuoteLinkable linkable : linkables) {
-                    linkable.setMarkedNo(linkables.length > 1 ? 123456789 : -1);
+                    linkable.setCallback(() -> true);
+                    linkable.setMarkedNo(linkables.length > 1 ? 23456 : -1);
                 }
             }
 
@@ -425,7 +440,7 @@ public class ThemeSettingsController
                 }
             };
             adapter.setThread(thread, new PostsFilter(BUMP_ORDER, null));
-            adapter.highlightPostNo(posts.get(2).no); // highlight third post
+            adapter.highlightPostNo(parsedPosts.get(3).no); // highlight fourth post
             holder.recyclerView.setAdapter(adapter);
 
             final View.OnClickListener colorClick = v -> {
@@ -505,86 +520,79 @@ public class ThemeSettingsController
 
         @NonNull
         private List<Post.Builder> generatePosts() {
-            Post.Builder builder1 = new Post.Builder()
-                    .board(Board.getDummyBoard())
-                    .no(123456789)
-                    .opId(123456789)
-                    .posterId("TeStId++")
-                    .idColor(0xFF317CD3)
+            Post.Builder builder0 = new Post.Builder()
+                    .no(12345)
                     .op(true)
-                    .replies(1)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
                     .subject("Lorem ipsum")
-                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>"
+                    .posterId("TeStId++")
+                    .idColor(0xFFEAE189)
+                    .name("W.T. Snacks")
+                    .tripcode("!TcT.PTG1.2")
+                    .moderatorCapcode("Mod")
+                    .comment("This text is normally colored.<br>"
                             + "http://example.com/<br>"
-                            + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
+                            + "<span class=\"spoiler\">This text is spoilered.</span><br>"
+                            + "<span class=\"spoiler\">This is a spoilered link. http://example.com/</span><br>"
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
-                            + "<span class=\"quote\">&gt;This is a inline quoted quote. "
-                            + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a></span><br>"
-                            + "<span class=\"quote\">&gt;This is a inline quoted quote that is marked. "
-                            + "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a></span><br>"
-                            + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>");
-
-            Post.Builder builder2 = new Post.Builder()
-                    .board(Board.getDummyBoard())
-                    .no(234567890)
-                    .opId(123456789)
-                    .posterId("TeStId2+")
+                            + "&verbar;&verbar;This line has extra spoiler characters around it.&verbar;&verbar;<br>"
+                            + "<a href=\"#p90123\" class=\"quotelink\">&gt;&gt;90123</a> This quote is in a different thread!<br>"
+                            + "This text has search highlighting applied."
+                            + "This is a long string of text to allow you to check how shift-post "
+                            + "formatting works, if you have it enabled. This text should appear "
+                            + "below the image if so, because the total size of the text on this post "
+                            + "is greater than twice the height of the image.")
+                    .images(Collections.singletonList(new PostImage.Builder()
+                            .imageUrl(TEST_POST_IMAGE_URL)
+                            .thumbnailUrl(TEST_POST_IMAGE_URL)
+                            .filename("new_icon_512")
+                            .extension("png")
+                            .build()))
                     .addHttpIcon(new PostHttpIcon(SiteEndpoints.IconType.BOARD_FLAG,
                             TEST_POST_ICON_URL,
                             new PassthroughBitmapResult(),
                             "test",
                             "Test icon"
-                    ))
-                    .idColor(0xFF471D0A)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
+                    ));
+
+            Post.Builder builder1 = new Post.Builder()
+                    .no(23456)
+                    .replies(1)
+                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span> This is a deadlink. <br>"
+                            + "<span class=\"quote\">&gt;<a href=\"#p12345\" class=\"quotelink\">&gt;&gt;12345</a> "
+                            + "This is a inline quoted quote.</span>");
+
+            Post.Builder builder2 = new Post.Builder()
+                    .no(34567)
                     .comment(
                             "This is a spacer post for seeing the divider color; below are links for embed testing:<br>"
                                     + "https://www.youtube.com/watch?v=dQw4w9WgXcQ<br>"
                                     + "<span class=\"spoiler\">https://www.youtube.com/watch?v=dQw4w9WgXcQ</span>");
 
             Post.Builder builder3 = new Post.Builder()
-                    .board(Board.getDummyBoard())
-                    .no(345678901)
-                    .opId(123456789)
-                    .name("W.T. Snacks")
-                    .tripcode("!TcT.PTG1.2")
-                    .posterId("TeStId3+")
-                    .idColor(0xFFEAE189)
-                    .moderatorCapcode("Mod")
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
-                    .comment(
-                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
-                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
-                                    + "This post is highlighted.<br>"
-                                    + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>"
-                                    + "This text has search highlighting applied.")
-                    .images(Collections.singletonList(new PostImage.Builder()
-                            .imageUrl(TEST_POST_IMAGE_URL)
-                            .thumbnailUrl(TEST_POST_IMAGE_URL)
-                            .filename("new_icon_512")
-                            .extension("png")
-                            .build()));
+                    .no(45678)
+                    .comment("<a href=\"#p23456\" class=\"quotelink\">&gt;&gt;23456</a> This link is marked.<br>"
+                            + "<span class=\"quote\">&gt;<a href=\"#p23456\" class=\"quotelink\">&gt;&gt;23456</a> "
+                            + "This is a inline quoted quote that is marked.</span><br>"
+                            + "This post is highlighted.<br>"
+                            + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>");
 
             Post.Builder builder4 = new Post.Builder()
-                    .board(Board.getDummyBoard())
-                    .no(666)
-                    .opId(123456789)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(10)))
-                    .comment("This post is deleted!<br>"
-                            + "&verbar;&verbar;This line has extra spoiler characters around it.&verbar;&verbar;");
-
-            Post.Builder builder5 = new Post.Builder()
-                    .board(Board.getDummyBoard())
-                    .no(999)
-                    .opId(123456789)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(5)))
+                    .no(56789)
                     .comment(
-                            "<a href=\"#p666\" class=\"quotelink\">&gt;&gt;666</a> This post is replying to a post that is deleted!<br>"
+                            "<a href=\"#p45678\" class=\"quotelink\">&gt;&gt;45678</a> This is a reply to a deleted post.<br>"
                                     + "Below is an image link to test out image embedding.<br>"
-                                    + "https://picsum.photos/512.jpg");
+                                    + "https://picsum.photos/512.jpg<br>");
 
-            return Arrays.asList(builder1, builder2, builder3, builder4, builder5);
+            List<Post.Builder> posts = Arrays.asList(builder0, builder1, builder2, builder3, builder4);
+            long currentTime = System.currentTimeMillis();
+            for (int i = 0; i < posts.size(); i++) {
+                Post.Builder post = posts.get(i);
+                post.board(Board.getDummyBoard());
+                post.opId(posts.get(0).no);
+                long offsetMinutes = MINUTES.toMillis((posts.size() - i) * 5L);
+                post.setUnixTimestampSeconds(MILLISECONDS.toSeconds(currentTime - offsetMinutes));
+            }
+            return posts;
         }
 
         private Filters generateFilters(Context context) {
