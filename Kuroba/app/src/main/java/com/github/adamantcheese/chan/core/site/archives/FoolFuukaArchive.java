@@ -4,6 +4,7 @@ import static com.github.adamantcheese.chan.features.html_styling.impl.CommonSty
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.INLINE_QUOTE_COLOR;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.ARCHIVE_MISSING_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.DEFAULT_SPOILER_IMAGE_URL;
+import static com.github.adamantcheese.chan.utils.HttpUrlUtilsKt.trimmedPathSegments;
 
 import android.text.TextUtils;
 import android.util.JsonReader;
@@ -286,7 +287,7 @@ public class FoolFuukaArchive
 
             @Override
             public Loadable resolveLoadable(Site site, HttpUrl url) {
-                List<String> parts = url.pathSegments();
+                List<String> parts = trimmedPathSegments(url);
 
                 if (!parts.isEmpty()) {
                     String boardCode = parts.get(0);

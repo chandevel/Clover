@@ -9,6 +9,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.HttpUrlUtilsKt.trimmedPathSegments;
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
@@ -99,20 +100,15 @@ public class PostThemedStyleActions {
             @NonNull PostParser.PostParserCallback callback
     ) {
         // get a URL for the href to parse through
-        String href = anchor.attr("href");
         HttpUrl hrefUrl = null;
         try {
             hrefUrl = HttpUrl.get(anchor.absUrl("href"));
         } catch (Exception ignored) {}
         if (hrefUrl == null) {
-            return new ParserLinkLinkable(theme, href);
+            return new ParserLinkLinkable(theme, anchor.attr("href"));
         }
-        // remove empty segments on the path
-        List<String> hrefSegments = hrefUrl.pathSegments();
-        for (int i = hrefSegments.size() - 1; i >= 0; i--) {
-            String segment = hrefSegments.get(i);
-            if (segment.isEmpty()) hrefSegments.remove(segment);
-        }
+
+        List<String> hrefSegments = trimmedPathSegments(hrefUrl);
 
         // convert the segments into a board, thread, and post number
         // TODO make the site itself have a method to parse the segments, because this is not correct for all sites
@@ -153,7 +149,7 @@ public class PostThemedStyleActions {
         } else {
             ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
             return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(theme,
-                    href.contains("post")
+                    hrefUrl.toString().contains("post")
                             ? new ResolveLink((ExternalSiteArchive) post.board.site, board, postNo)
                             : threadLink
             ) : new ThreadLinkable(theme, threadLink);

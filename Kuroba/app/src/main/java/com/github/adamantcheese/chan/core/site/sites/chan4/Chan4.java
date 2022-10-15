@@ -23,6 +23,7 @@ import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CHAN4_CUSTOM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.SWF_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.HttpUrlUtilsKt.trimmedPathSegments;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -93,7 +94,7 @@ public class Chan4
 
         @Override
         public Loadable resolveLoadable(Site site, HttpUrl url) {
-            List<String> parts = url.pathSegments();
+            List<String> parts = trimmedPathSegments(url);
 
             if (!parts.isEmpty()) {
                 String boardCode = parts.get(0);
