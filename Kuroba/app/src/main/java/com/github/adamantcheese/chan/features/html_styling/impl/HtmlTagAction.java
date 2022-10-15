@@ -26,8 +26,7 @@ public class HtmlTagAction
     // Maps an element tag to a rule; ie the style always applies to the tag
     public final Map<String, ChainStyleAction> wildcardRules = new HashMap<>();
 
-    public HtmlTagAction(boolean addDefaultRules) {
-        if (!addDefaultRules) return;
+    public void addDefaultRules() {
         // required newline rules
         mapTagToRule("p", BLOCK_LINE_BREAK);
         mapTagToRule("div", BLOCK_LINE_BREAK);
@@ -104,7 +103,7 @@ public class HtmlTagAction
      * @return A new tag action with the rules of both actions in it
      */
     public HtmlTagAction mergeWith(HtmlTagAction other) {
-        HtmlTagAction merged = new HtmlTagAction(false);
+        HtmlTagAction merged = new HtmlTagAction();
         merged.wildcardRules.putAll(wildcardRules);
         merged.specificRules.putAll(specificRules);
         for (String wildcardTag : other.wildcardRules.keySet()) {

@@ -249,7 +249,7 @@ public class FoolFuukaArchive
                 Theme theme, Post.Builder post, PostParser.PostParserCallback callback
         ) {
             HtmlTagAction base = super.addSpecificActions(theme, post, callback);
-            HtmlTagAction newAction = new HtmlTagAction(false);
+            HtmlTagAction newAction = new HtmlTagAction();
             // for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
             // the default post parser has already handled any inner tags by the time that it has gotten to this case, since
             // deepest nodes are processed first

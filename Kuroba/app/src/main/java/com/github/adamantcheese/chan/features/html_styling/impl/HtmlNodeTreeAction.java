@@ -1,13 +1,15 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.A_HREF;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.getDefaultTextStylingAction;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.EMOJI;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.LINK;
 
 import android.text.SpannableStringBuilder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -60,12 +62,13 @@ public class HtmlNodeTreeAction
     }
 
     public static CharSequence fromHtml(String htmlBody, String baseUri, Map<String, StyleAction> extraMappings) {
-        HtmlTagAction tagAction = new HtmlTagAction(true);
+        HtmlTagAction tagAction = new HtmlTagAction();
+        tagAction.addDefaultRules();
         tagAction.mapTagToRule("a", A_HREF);
         for (Map.Entry<String, StyleAction> entry : extraMappings.entrySet()) {
             tagAction.mapTagToRule(entry.getKey(), entry.getValue());
         }
-        StyleAction textAction = getDefaultTextStylingAction(ThemeHelper.getTheme());
+        StyleAction textAction = new ChainStyleAction(LINK.with(ThemeHelper.getTheme())).chain(EMOJI);
         return new HtmlNodeTreeAction(tagAction, textAction).style(prepare(htmlBody, baseUri), null);
     }
 

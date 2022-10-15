@@ -39,7 +39,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 public class ChanCommentAction
         extends HtmlTagAction {
     public ChanCommentAction() {
-        super(true);
+        addDefaultRules();
 
         // text modifying
         mapTagToRule("span", "abbr", NULLIFY);
@@ -53,7 +53,7 @@ public class ChanCommentAction
     public HtmlTagAction addSpecificActions(
             Theme theme, Post.Builder post, PostParser.PostParserCallback callback
     ) {
-        HtmlTagAction newAction = new HtmlTagAction(false);
+        HtmlTagAction newAction = new HtmlTagAction();
 
         // themed text
         newAction.mapTagToRule("span", "quote", INLINE_QUOTE_COLOR.with(theme));

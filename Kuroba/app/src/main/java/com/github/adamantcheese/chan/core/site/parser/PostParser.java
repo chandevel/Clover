@@ -17,7 +17,9 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.EMOJI;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.HEX_COLOR;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.LINK;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
@@ -37,7 +39,8 @@ import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
-import com.github.adamantcheese.chan.features.html_styling.impl.*;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
+import com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions;
 import com.github.adamantcheese.chan.ui.text.*;
 import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.RemovedLinkable;
@@ -196,7 +199,7 @@ public class PostParser {
                 ))
                 .chain(PostThemedStyleActions.MAGNET_LINKS.with(theme))
                 .chain(new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, postParserCallback),
-                        new ChainStyleAction(HEX_COLOR).chain(CommonStyleActions.getDefaultTextStylingAction(theme))
+                        new ChainStyleAction(HEX_COLOR).chain(LINK.with(theme)).chain(EMOJI)
                 ))
                 .style(HtmlNodeTreeAction.prepare(comment, post.threadUrl()), null);
     }

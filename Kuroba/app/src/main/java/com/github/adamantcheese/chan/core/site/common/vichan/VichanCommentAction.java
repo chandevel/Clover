@@ -32,7 +32,7 @@ public class VichanCommentAction
             Theme theme, Post.Builder post, PostParser.PostParserCallback callback
     ) {
         HtmlTagAction base = super.addSpecificActions(theme, post, callback);
-        HtmlTagAction newAction = new HtmlTagAction(false);
+        HtmlTagAction newAction = new HtmlTagAction();
         newAction.mapTagToRule("p", "quote", INLINE_QUOTE_COLOR.with(theme));
         return base.mergeWith(newAction);
     }
