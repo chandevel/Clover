@@ -118,7 +118,12 @@ public class ShapeablePostImageView
 
     @Override
     public void draw(Canvas canvas) {
-        super.draw(canvas);
+        try {
+            super.draw(canvas);
+        } catch (Exception any) {
+            // possible that we attempt to draw too large of a bitmap
+            return;
+        }
 
         if (type == PostImage.Type.MOVIE || type == PostImage.Type.IFRAME) {
             float proportion = 3.5f;
