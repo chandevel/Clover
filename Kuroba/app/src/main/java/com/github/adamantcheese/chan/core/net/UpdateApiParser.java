@@ -25,7 +25,7 @@ import android.util.JsonReader;
 import android.util.MalformedJsonException;
 
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
+import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
@@ -95,7 +95,7 @@ public class UpdateApiParser
                         response.commitHash = reader.nextString().trim();
                     } else {
                         Node updateLog = Parser.builder().build().parse(reader.nextString());
-                        response.body = HtmlNodeTreeAction.fromHtml("Changelog:\r\n" + HtmlRenderer
+                        response.body = StyledHtml.fromHtml("Changelog:\r\n" + HtmlRenderer
                                 .builder()
                                 .build()
                                 .render(updateLog), null);

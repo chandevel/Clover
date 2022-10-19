@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentTop="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="1"
-            tools:listitem="@layout/cell_album_download" />
+            tools:listitem="@layout/cell_album_view" />
 
         <RelativeLayout
             android:id="@+id/header_wrapper"

@@ -33,7 +33,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
+import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
@@ -126,7 +126,7 @@ public class LoginController
         });
 
         CharSequence bottomDesc =
-                HtmlNodeTreeAction.fromHtml(getString(R.string.setting_pass_bottom_description), null);
+                StyledHtml.fromHtml(getString(R.string.setting_pass_bottom_description), null);
         bottomDescription.setText(bottomDesc);
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 

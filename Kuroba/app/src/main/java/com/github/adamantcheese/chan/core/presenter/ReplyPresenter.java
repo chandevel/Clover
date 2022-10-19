@@ -57,7 +57,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
+import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
@@ -307,7 +307,7 @@ public class ReplyPresenter
             SpannableStringBuilder errorMessage =
                     new SpannableStringBuilder(span(getString(R.string.reply_error), new StyleSpan(Typeface.BOLD)));
             if (replyResponse.errorMessage != null) {
-                Spannable error = new SpannableString(HtmlNodeTreeAction.fromHtml(replyResponse.errorMessage, null));
+                Spannable error = new SpannableString(StyledHtml.fromHtml(replyResponse.errorMessage, null));
                 // update colors for url spans; unfortunately that means re-making them
                 URLSpan[] spans = error.getSpans(0, error.length(), URLSpan.class);
                 for (URLSpan s : spans) {

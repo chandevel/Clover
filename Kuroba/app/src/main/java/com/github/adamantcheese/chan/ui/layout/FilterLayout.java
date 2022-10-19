@@ -39,8 +39,8 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
+import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.view.*;
 
@@ -295,11 +295,12 @@ public class FilterLayout
         Map<String, StyleAction> extraStyles = new HashMap<>();
         extraStyles.put("tt", (node, text) -> span(text, new BackgroundColorSpanHashed(0x22000000)));
         extraStyles.put("i", (node, text) -> span(text, new BackgroundColorSpanHashed(0x22000000)));
-        SpannableStringBuilder message =
-                new SpannableStringBuilder(HtmlNodeTreeAction.fromHtml(getString(R.string.filter_help),
-                        null,
-                        extraStyles
-                ));
+        SpannableStringBuilder message = new SpannableStringBuilder(StyledHtml.fromHtml(getString(R.string.filter_help),
+                null,
+                extraStyles,
+                Collections.emptyMap(),
+                Collections.emptyList()
+        ));
 
         getDefaultAlertBuilder(getContext())
                 .setTitle(R.string.filter_help_title)
@@ -349,7 +350,8 @@ public class FilterLayout
         int extraFlags = (filter.type & FilterType.FLAG_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
         boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, extraFlags) != null;
         pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
-        boolean negValid = !TextUtils.isEmpty(filter.negativePattern) && filterEngine.compile(filter.negativePattern, extraFlags) != null;
+        boolean negValid = !TextUtils.isEmpty(filter.negativePattern)
+                && filterEngine.compile(filter.negativePattern, extraFlags) != null;
         negativePattern.setError(negValid ? null : getString(R.string.filter_invalid_pattern));
 
         if (callback != null) {

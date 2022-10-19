@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.manager;
 import static com.github.adamantcheese.chan.BuildConfig.*;
 import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.NO_OP;
-import static com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction.prepare;
+import static com.github.adamantcheese.chan.features.html_styling.StyledHtml.prepare;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;

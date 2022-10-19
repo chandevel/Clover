@@ -24,7 +24,7 @@ import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
+import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import org.jsoup.nodes.Document;
@@ -54,7 +54,7 @@ public class CaptchaV2NoJsHtmlParser {
                 .first()
                 .wholeText()
                 .replace("Select all images", "Tap all");
-        captchaV2NoJsInfo.captchaTitle = HtmlNodeTreeAction.fromHtml(bareTitle, captchaPage.baseUri());
+        captchaV2NoJsInfo.captchaTitle = StyledHtml.fromHtml(bareTitle, captchaPage.baseUri());
 
         downloadAndStoreImage(captchaPage.select(".fbc-imageselect-payload").first().absUrl("src"));
         captchaV2NoJsInfo.challengeImages =

@@ -38,6 +38,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions;
@@ -201,7 +202,7 @@ public class PostParser {
                 .chain(new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, postParserCallback),
                         new ChainStyleAction(HEX_COLOR).chain(LINK.with(theme)).chain(EMOJI)
                 ))
-                .style(HtmlNodeTreeAction.prepare(comment, post.threadUrl()), null);
+                .style(StyledHtml.prepare(comment, post.threadUrl()), null);
     }
 
     private void processPostFilter(Post.Builder post) {
