@@ -63,7 +63,7 @@ public class StringUtils {
     public static Pair<String, String> splitExtension(HttpUrl url) {
         if (url == null) return new Pair<>("", "");
 
-        String result = url.toString();
+        String result = url.newBuilder().query(null).fragment(null).toString();
         if (result.length() < 4) {
             return new Pair<>(result, "");
         }
