@@ -20,7 +20,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.CATALOG;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.INVALID;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
-import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 import android.os.Parcel;
 import android.text.TextUtils;
@@ -238,18 +237,18 @@ public class Loadable
                 + boardCode
                 + '\''
                 + ", no="
-                + maskPostNo(no)
+                + no
                 + '\''
                 + ", listViewIndex="
                 + listViewIndex
                 + ", listViewTop="
                 + listViewTop
                 + ", lastViewed="
-                + maskPostNo(lastViewed)
+                + lastViewed
                 + ", lastLoaded="
-                + maskPostNo(lastLoaded)
+                + lastLoaded
                 + ", markedNo="
-                + maskPostNo(markedNo)
+                + markedNo
                 + '}';
     }
 

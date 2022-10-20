@@ -60,21 +60,6 @@ public class StringUtils {
         }
     }
 
-    public static String maskPostNo(int postNo) {
-        String postNoString = String.valueOf(postNo);
-        if (postNoString.length() >= 4) {
-            return postNoString.substring(0, postNoString.length() - 3) + "XXX";
-        }
-
-        return postNoString;
-    }
-
-    public static String maskImageUrl(HttpUrl url) {
-        if (url == null) return "";
-        Pair<String, String> split = splitExtension(url);
-        return split.first.substring(0, split.first.length() - 3) + "XXX." + split.second;
-    }
-
     public static Pair<String, String> splitExtension(HttpUrl url) {
         if (url == null) return new Pair<>("", "");
 

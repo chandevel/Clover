@@ -13,7 +13,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResu
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.*;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import kotlin.Triple;
 import okhttp3.*;
@@ -76,7 +77,7 @@ public interface ImageLoadable {
                                 data.setLoadedUrl(source);
                             }
                         } else {
-                            Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(source), e);
+                            Logger.d(this, "Failed to load image for " + source, e);
                         }
                         imageView.setImageBitmap(BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e));
 

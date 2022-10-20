@@ -25,7 +25,6 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Suc
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -201,7 +200,7 @@ public class ImageSaver {
             onBatchCompleted();
         }
 
-        Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.postImage.imageUrl));
+        Logger.e(this, "imageSaveTaskFailed imageUrl = " + task.postImage.imageUrl);
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
         EventBus.getDefault().post(new StartActivity.ActivityToastMessage(errorMessage, Toast.LENGTH_LONG));
@@ -215,7 +214,7 @@ public class ImageSaver {
             activeDownloads.remove(task.postImage.imageUrl);
         }
 
-        Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.postImage.imageUrl));
+        Logger.d(this, "imageSaveTaskFinished imageUrl = " + task.postImage.imageUrl);
         boolean wasAlbumSave = totalTasks.get() > 1;
 
         if (checkBatchCompleted()) {
