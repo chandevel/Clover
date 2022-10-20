@@ -33,12 +33,6 @@ public class StringUtils {
     private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
     private static final String RESERVED_CHARACTERS_FILE = "[" + RESERVED_CHARACTERS + "]";
 
-    public static DateFormat UTCFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
-
-    static {
-        UTCFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
     public static String dirNameRemoveBadCharacters(String dirName) {
         return dirName.replaceAll(" ", "_").replaceAll(RESERVED_CHARACTERS_DIR, "");
     }
@@ -133,10 +127,6 @@ public class StringUtils {
             properCaseString.append(part).append(' ');
         }
         return properCaseString.deleteCharAt(properCaseString.length() - 1).toString();
-    }
-
-    public static String getCurrentDateAndTimeUTC() {
-        return UTCFormat.format(new Date());
     }
 
     public static String getCurrentTimeDefaultLocale() {
