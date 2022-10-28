@@ -45,7 +45,7 @@ import kotlin.io.TextStreamsKt;
 public class LogsController
         extends Controller {
     private static final String TAG = "LogsController";
-    private static final int DEFAULT_LINES_COUNT = 250;
+    private static final int DEFAULT_LINES_COUNT = 1000;
 
     private TextView logTextView;
 

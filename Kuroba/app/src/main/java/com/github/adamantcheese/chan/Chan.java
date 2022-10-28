@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan;
 import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_BACKGROUND;
 import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_FOREGROUND;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.StringUtils.exceptionToString;
 import static java.lang.Thread.currentThread;
 
 import android.app.Activity;
@@ -39,7 +40,7 @@ import com.github.adamantcheese.chan.utils.*;
 import org.codejargon.feather.Feather;
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.*;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -121,11 +122,10 @@ public class Chan
                 return;
             }
 
-            Logger.e("APP", "RxJava undeliverable exception", e);
-
             // Do not exit the app here! Most of the time an exception that comes here is not a
             // fatal one. We only want to log and report them to analyze later. The app should be
             // able to continue running after that.
+            Logger.e("APP", "RxJava undeliverable exception", e);
         });
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
@@ -153,19 +153,6 @@ public class Chan
 
             System.exit(999);
         });
-    }
-
-    private String exceptionToString(Throwable e) {
-        try (StringWriter sw = new StringWriter()) {
-            try (PrintWriter pw = new PrintWriter(sw)) {
-                e.printStackTrace(pw);
-                String stackTrace = sw.toString();
-
-                return "Unhandled exception:\n" + stackTrace;
-            }
-        } catch (IOException ex) {
-            return "Failed to generate stack trace: " + e.getMessage();
-        }
     }
 
     public boolean getActivityInForeground() {

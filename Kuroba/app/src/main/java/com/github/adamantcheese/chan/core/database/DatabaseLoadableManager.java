@@ -125,6 +125,7 @@ public class DatabaseLoadableManager {
 
     private void updateLoadableFields(Loadable loadable)
             throws SQLException {
+        // TODO #1407, sometimes loadable.siteId is 0 instead of a number > 0
         loadable.site = siteRepository.forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         loadable.lastLoadDate =

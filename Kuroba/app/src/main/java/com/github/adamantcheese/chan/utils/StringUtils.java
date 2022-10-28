@@ -18,6 +18,7 @@ import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -395,5 +396,18 @@ public class StringUtils {
         int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
         imageSpan.getDrawable().setBounds(0, 0, width, (int) height);
         return TextUtils.concat(span(" ", imageSpan), " ", total);
+    }
+
+    public static String exceptionToString(Throwable e) {
+        try (StringWriter sw = new StringWriter()) {
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                e.printStackTrace(pw);
+                String stackTrace = sw.toString();
+
+                return "Unhandled exception:\n" + stackTrace;
+            }
+        } catch (IOException ex) {
+            return "Failed to generate stack trace: " + e.getMessage();
+        }
     }
 }
