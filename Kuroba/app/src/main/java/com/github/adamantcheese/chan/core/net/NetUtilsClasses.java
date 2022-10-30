@@ -11,6 +11,8 @@ import android.util.JsonReader;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
+import com.github.adamantcheese.chan.core.net.interceptors.CloudflareInterceptor;
+import com.github.adamantcheese.chan.core.net.interceptors.HttpEquivRefreshInterceptor;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -24,6 +26,7 @@ import java.util.List;
 
 import kotlin.io.FilesKt;
 import okhttp3.*;
+import okhttp3.internal.http.HttpStatusCodesKt;
 import okio.*;
 
 /**
@@ -316,12 +319,12 @@ public class NetUtilsClasses {
         }
 
         public boolean isServerErrorNotFound() {
-            return code == 404;
+            return code == HttpStatusCodesKt.HTTP_NOT_FOUND;
         }
 
         @Override
         public String getMessage() {
-            return code + " " + HttpStatusCodesKt.getCODE_MAP_TO_NAME().get(code) + (hadData ? " with data" : "");
+            return code + " " + HttpStatusCodesNamesKt.getCODE_MAP_TO_NAME().get(code) + (hadData ? " with data" : "");
         }
     }
 

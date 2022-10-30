@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.net
+package com.github.adamantcheese.chan.core.net.interceptors
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,6 +7,7 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.adamantcheese.chan.R
+import com.github.adamantcheese.chan.core.net.NetUtils
 import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils

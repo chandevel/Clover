@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.net;
+package com.github.adamantcheese.chan.core.net.interceptors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
