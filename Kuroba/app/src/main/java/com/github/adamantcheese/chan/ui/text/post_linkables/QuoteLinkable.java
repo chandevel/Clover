@@ -5,7 +5,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import android.graphics.*;
 import android.text.Spanned;
 import android.text.TextPaint;
-import android.text.style.*;
+import android.text.style.CharacterStyle;
+import android.text.style.LineBackgroundSpan;
 
 import androidx.annotation.NonNull;
 
@@ -34,7 +35,8 @@ public class QuoteLinkable
         dashPaint.setStyle(Paint.Style.STROKE);
         dashPaint.setPathEffect(new DashPathEffect(new float[]{DASH_SPACING, DASH_SPACING}, 0));
         // only one side of the stroke needs to be this thick, it is doubled automatically
-        dashPaint.setStrokeWidth(UNDERLINE_THICKNESS / 2);
+        // this appears to look the best when compared to other underlines as well?
+        dashPaint.setStrokeWidth(UNDERLINE_THICKNESS / 3);
     }
 
     public void setMarkedNo(int markedNo) {
@@ -80,10 +82,11 @@ public class QuoteLinkable
 
             // update colors in case of overlapping spans
             TextPaint workPaint = new TextPaint();
+            if (paint instanceof TextPaint) {
+                workPaint.set((TextPaint) paint);
+            }
             for (CharacterStyle span : spanned.getSpans(0, spanned.length(), CharacterStyle.class)) {
-                if (span instanceof UpdateAppearance) {
-                    span.updateDrawState(workPaint);
-                }
+                span.updateDrawState(workPaint);
             }
             dashPaint.setColor(workPaint.getColor());
 
