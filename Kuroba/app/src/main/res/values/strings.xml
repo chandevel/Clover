@@ -75,6 +75,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="one">%d hour</item>
         <item quantity="other">%d hours</item>
     </plurals>
+    <plurals name="percent">
+        <item quantity="other">%d%%</item>
+    </plurals>
 
     <string name="empty" />
     <string name="cancel">Cancel</string>

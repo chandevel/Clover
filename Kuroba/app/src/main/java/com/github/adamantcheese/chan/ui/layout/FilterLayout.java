@@ -20,12 +20,11 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.COLOR;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.text.*;
 import android.util.AttributeSet;
@@ -323,7 +322,9 @@ public class FilterLayout
                         Color.green(colorView.getColor()),
                         Color.blue(colorView.getColor())
                 ));
-                percent.setText((int) ((progress / (float) seekBar.getMax()) * 100) + "%");
+                percent.setText(getQuantityString(R.plurals.percent,
+                        (int) (progress * 100 / (float) seekBar.getMax())
+                ));
             }
 
             @Override
@@ -334,7 +335,9 @@ public class FilterLayout
         });
         colorView.setColor(filter.color);
         alphaBar.setProgress(Color.alpha(filter.color));
-        percent.setText((int) ((alphaBar.getProgress() / (float) alphaBar.getMax()) * 100) + "%");
+        percent.setText(getQuantityString(R.plurals.percent,
+                (int) (alphaBar.getProgress() * 100 / (float) alphaBar.getMax())
+        ));
 
         getDefaultAlertBuilder(getContext())
                 .setView(colorPickerView)
@@ -350,12 +353,12 @@ public class FilterLayout
         int extraFlags = (filter.type & FilterType.FLAG_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
         boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, extraFlags) != null;
         pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
-        boolean negValid = !TextUtils.isEmpty(filter.negativePattern)
-                && filterEngine.compile(filter.negativePattern, extraFlags) != null;
+        boolean negValid = TextUtils.isEmpty(filter.negativePattern)
+                || filterEngine.compile(filter.negativePattern, extraFlags) != null;
         negativePattern.setError(negValid ? null : getString(R.string.filter_invalid_pattern));
 
         if (callback != null) {
-            callback.setSaveButtonEnabled(valid);
+            callback.setSaveButtonEnabled(valid && negValid);
         }
     }
 
@@ -426,6 +429,9 @@ public class FilterLayout
         patternPreviewStatus.setImageResource(matches
                 ? R.drawable.ic_fluent_checkmark_24_filled
                 : R.drawable.ic_fluent_dismiss_24_filled);
+        patternPreviewStatus.setImageTintList(ColorStateList.valueOf(matches
+                ? getColor(R.color.md_green_800)
+                : getColor(R.color.md_red_800)));
     }
 
     public interface FilterLayoutCallback {
