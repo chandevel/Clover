@@ -30,6 +30,8 @@ public class BitmapRepository {
     public static Bitmap pixivIcon;
     public static Bitmap dlsiteIcon;
     public static Bitmap magnetIcon;
+    public static Bitmap strawpollIcon;
+    public static Bitmap pastebinIcon;
 
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
@@ -61,6 +63,8 @@ public class BitmapRepository {
         pixivIcon = decode(c, R.drawable.pixiv_icon);
         dlsiteIcon = decode(c, R.drawable.dlsite_icon);
         magnetIcon = decode(c, R.drawable.magnet_icon);
+        strawpollIcon = decode(c, R.drawable.strawpoll_icon);
+        pastebinIcon = decode(c, R.drawable.pastebin_icon);
 
         stickyIcon = decode(c, R.drawable.sticky_icon);
         closedIcon = decode(c, R.drawable.closed_icon);
