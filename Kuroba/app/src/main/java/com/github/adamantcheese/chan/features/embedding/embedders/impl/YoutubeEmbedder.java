@@ -5,6 +5,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUti
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
@@ -77,19 +78,27 @@ public class YoutubeEmbedder
             throws Exception {
         return new NetUtilsClasses.ChainConverter<EmbedResult, JsonReader>(input -> {
             HttpUrl url = response.request().url();
+            String id = null;
             String title = null;
             String duration = null;
+            String smallThumb = null;
             input.beginObject();
             while (input.hasNext()) {
                 if ("videoDetails".equals(input.nextName())) {
                     input.beginObject();
                     while (input.hasNext()) {
                         switch (input.nextName()) {
+                            case "videoId":
+                                id = input.nextString();
+                                break;
                             case "title":
                                 title = URLDecoder.decode(input.nextString(), "UTF-8");
                                 break;
                             case "lengthSeconds":
                                 duration = prettyPrintDateUtilsElapsedTime(input.nextInt());
+                                break;
+                            case "thumbnail":
+                                smallThumb = getLargestSmallThumb(input);
                                 break;
                             case "isLiveContent":
                                 if (input.nextBoolean()) {
@@ -116,7 +125,18 @@ public class YoutubeEmbedder
                 duration += urlString.contains("loop") ? "[LOOP]" : "";
             }
 
-            return new EmbedResult(title, duration, null);
+            return new EmbedResult(
+                    title,
+                    duration,
+                    new PostImage.Builder()
+                            .serverFilename(id)
+                            .thumbnailUrl(HttpUrl.get(smallThumb))
+                            .imageUrl(HttpUrl.get("https://i.ytimg.com/vi/" + id + "/maxresdefault.jpg"))
+                            .filename("maxresdefault")
+                            .extension("jpg")
+                            .isInlined()
+                            .build()
+            );
         }).chain(input -> {
             Matcher paramsMatcher = API_PARAMS.matcher(response.body().string());
             if (paramsMatcher.find()) {
@@ -124,5 +144,37 @@ public class YoutubeEmbedder
             }
             return null;
         }).convert(response);
+    }
+
+    private String getLargestSmallThumb(JsonReader input)
+            throws Exception {
+        String biggestSmallThumb = null;
+        int largestSoFar = 0;
+        input.beginObject();
+        while (input.hasNext()) {
+            if ("thumbnails".equals(input.nextName())) {
+                input.beginArray();
+                while (input.hasNext()) {
+                    input.beginObject();
+                    input.nextName();
+                    String url = input.nextString();
+                    input.nextName();
+                    int width = Integer.parseInt(input.nextString());
+                    input.nextName();
+                    int height = Integer.parseInt(input.nextString());
+                    int pxSize = width * height;
+                    if (pxSize > largestSoFar && !url.contains("maxres")) {
+                        largestSoFar = pxSize;
+                        biggestSmallThumb = url;
+                    }
+                    input.endObject();
+                }
+                input.endArray();
+            } else {
+                input.skipValue();
+            }
+        }
+        input.endObject();
+        return biggestSmallThumb;
     }
 }

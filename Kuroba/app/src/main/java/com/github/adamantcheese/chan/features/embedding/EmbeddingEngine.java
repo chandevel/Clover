@@ -96,7 +96,7 @@ public class EmbeddingEngine
         // Image embedders
         defaults.add(new PixivEmbedder());
         defaults.add(new DlsiteEmbedder());
-        // TODO imgur embedder?
+        // defaults.add(new ImgurEmbedder());
 
         // Text embedders
         defaults.add(new StrawpollEmbedder());
