@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Document;
 
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,6 @@ public class PastebinEmbedder
 
     @Override
     public NetUtilsClasses.Converter<EmbedResult, Document> getInternalConverter() {
-        return input -> new EmbedResult(input.title(), null, null);
+        return input -> new EmbedResult(input.title(), null, Collections.emptyList());
     }
 }

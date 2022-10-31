@@ -362,8 +362,8 @@ public class EmbeddingEngine
             }, true);
         }
         // if linking is enabled, add in any processed inlines
-        if (ChanSettings.parsePostImageLinks.get() && parseResult.extraImage != null) {
-            generatedImages.add(parseResult.extraImage);
+        if (ChanSettings.parsePostImageLinks.get()) {
+            generatedImages.addAll(parseResult.extraImages);
         }
     }
     //endregion

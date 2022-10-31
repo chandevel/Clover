@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.features.embedding.embedders.base.JsonEmbedder;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +55,7 @@ public class StrawpollEmbedder
                         break;
                     case "type":
                         String type = input.nextString();
-                        if(!"multiple_choice".equals(type)) {
+                        if (!"multiple_choice".equals(type)) {
                             title += " [" + StringUtils.caseAndSpace(type, "_", true) + "]";
                         }
                         break;
@@ -67,7 +68,7 @@ public class StrawpollEmbedder
 
             if (title == null) throw new EmbedNoTitleException();
 
-            return new EmbedResult(title, null, null);
+            return new EmbedResult(title, null, Collections.emptyList());
         };
     }
 }

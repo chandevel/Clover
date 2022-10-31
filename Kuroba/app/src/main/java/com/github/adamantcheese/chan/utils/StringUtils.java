@@ -20,8 +20,8 @@ import com.google.common.io.Files;
 
 import java.io.*;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +55,11 @@ public class StringUtils {
         }
     }
 
+    /**
+     * @param url The url to split
+     * @return A Pair, with the url minus the extension in the first, and extension on the second<br>
+     * For example, https://example.com/test.png will return ["https://example.com/test", "png"]
+     */
     public static Pair<String, String> splitExtension(HttpUrl url) {
         if (url == null) return new Pair<>("", "");
 
