@@ -21,6 +21,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.*;
 
@@ -138,15 +139,15 @@ public class Dvach
             }
 
             @Override
-            public Call post(Loadable loadableWithDraft, final PostListener postListener) {
-                return NetUtils.makeHttpCall(
+            public AtomicReference<Call> post(Loadable loadableWithDraft, final PostListener postListener) {
+                return new AtomicReference<>(NetUtils.makeHttpCall(
                         new DvachReplyCall(new NetUtilsClasses.MainThreadResponseResult<>(postListener),
                                 loadableWithDraft
                         ),
                         Collections.emptyList(),
                         postListener,
                         true
-                );
+                ));
             }
 
             @Override

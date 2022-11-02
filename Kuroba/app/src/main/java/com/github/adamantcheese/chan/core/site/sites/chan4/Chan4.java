@@ -50,6 +50,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -368,10 +369,9 @@ public class Chan4
         }
 
         @Override
-        public Call post(Loadable loadableWithDraft, final PostListener postListener) {
-            return NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener),
-                            loadableWithDraft
-                    ),
+        public AtomicReference<Call> post(Loadable loadableWithDraft, final PostListener postListener) {
+            return new AtomicReference<>(NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(
+                            postListener), loadableWithDraft),
                     Collections.singletonList(createCookieParsingInterceptor(c -> {
                         // in the event of a pass being already used, these will be immediately expired and you will be logged out
                         // due to a 4chan bug, posting on a worksafe board and getting this error will not correctly
@@ -391,7 +391,7 @@ public class Chan4
                     })),
                     postListener,
                     true
-            );
+            ));
         }
 
         @Override

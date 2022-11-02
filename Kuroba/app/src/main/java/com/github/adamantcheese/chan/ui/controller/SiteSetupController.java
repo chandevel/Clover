@@ -75,10 +75,12 @@ public class SiteSetupController
 
     @Override
     public void setIsLoggedIn(boolean isLoggedIn) {
-        String text = getString(isLoggedIn
-                ? R.string.setup_site_login_description_enabled
-                : R.string.setup_site_login_description_disabled);
-        loginLink.setDescription(text);
+        if (loginLink != null) {
+            String text = getString(isLoggedIn
+                    ? R.string.setup_site_login_description_enabled
+                    : R.string.setup_site_login_description_disabled);
+            loginLink.setDescription(text);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -156,8 +158,7 @@ public class SiteSetupController
         });
         general.add(boardsLink);
 
-        cookiesLink = new LinkSettingView(
-                this,
+        cookiesLink = new LinkSettingView(this,
                 "Clear cookies for this site",
                 site.api().getCookies().size() + " cookies",
                 ((v, sv) -> {

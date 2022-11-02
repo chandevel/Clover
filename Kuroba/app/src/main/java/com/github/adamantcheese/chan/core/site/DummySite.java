@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanComment
 import com.github.adamantcheese.chan.utils.BuildConfigUtils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.*;
 
@@ -224,9 +225,9 @@ public class DummySite
             public void pages(Board board, ResponseResult<ChanPages> pagesListener) {}
 
             @Override
-            public Call post(
+            public AtomicReference<Call> post(
                     Loadable loadableWithDraft, PostListener postListener
-            ) {return new NetUtilsClasses.NullCall(getDummyRoot());}
+            ) {return new AtomicReference<>(new NetUtilsClasses.NullCall(getDummyRoot()));}
 
             @Override
             public boolean postRequiresAuthentication(Loadable loadableWithDraft) {return false;}

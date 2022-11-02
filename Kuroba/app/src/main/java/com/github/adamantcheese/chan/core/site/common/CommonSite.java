@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.core.site.parser.SiteContentReader;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -395,7 +396,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public Call post(Loadable loadableWithDraft, PostListener postListener) {
+        public AtomicReference<Call> post(Loadable loadableWithDraft, PostListener postListener) {
             MultipartHttpCall<ReplyResponse> call =
                     new MultipartHttpCall<ReplyResponse>(new MainThreadResponseResult<>(postListener)) {
                         @Override
@@ -406,16 +407,10 @@ public abstract class CommonSite
 
             call.url(site.endpoints().reply(loadableWithDraft));
 
-            Call returnCall = NetUtils.makeHttpCall(call, false);
-            prepare(call, loadableWithDraft, new ResponseResult<Void>() {
-                @Override
-                public void onFailure(Exception e) {}
-
-                @Override
-                public void onSuccess(Void result) {
-                    setupPost(loadableWithDraft, call);
-                    returnCall.enqueue(call);
-                }
+            AtomicReference<Call> returnCall = new AtomicReference<>();
+            prepare(call, loadableWithDraft, (NoFailResponseResult<Void>) result -> {
+                setupPost(loadableWithDraft, call);
+                returnCall.set(NetUtils.makeHttpCall(call));
             });
             return returnCall;
         }

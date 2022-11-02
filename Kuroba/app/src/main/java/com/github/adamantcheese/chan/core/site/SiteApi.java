@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage
 import com.github.adamantcheese.chan.core.site.http.*;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.Call;
 import okhttp3.Cookie;
@@ -35,7 +36,7 @@ public interface SiteApi {
 
     void pages(Board board, NetUtilsClasses.ResponseResult<ChanPages> pagesListener);
 
-    Call post(Loadable loadableWithDraft, PostListener postListener);
+    AtomicReference<Call> post(Loadable loadableWithDraft, PostListener postListener);
 
     interface PostListener
             extends NetUtilsClasses.ResponseResult<ReplyResponse>, ProgressRequestBody.ProgressRequestListener {}

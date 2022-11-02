@@ -67,6 +67,7 @@ import com.google.common.io.Files;
 
 import java.io.File;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,7 +88,7 @@ public class ReplyPresenter
     private final ReplyPresenterCallback callback;
     private Loadable loadable;
     private Reply draft;
-    private Call replyCall;
+    private AtomicReference<Call> replyCall;
 
     private Page page = Page.INPUT;
     private boolean moreOpen;
@@ -522,7 +523,7 @@ public class ReplyPresenter
 
     public void cancelReply() {
         if (replyCall != null) {
-            replyCall.cancel();
+            replyCall.get().cancel();
             replyCall = null;
         }
     }
