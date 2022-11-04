@@ -22,10 +22,15 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.MalformedJsonException;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 
@@ -1119,6 +1124,45 @@ public class ThreadPresenter
             linkableGroup.setVisibility(View.GONE);
         }
         dialog.show();
+        //makes the pre-"Post info" section selectable, from https://stackoverflow.com/a/61562979
+        View messageView = dialog.findViewById(android.R.id.message);
+        if (messageView instanceof TextView) {
+            TextView castMessageView = (TextView) messageView;
+            castMessageView.setTextIsSelectable(true);
+
+            // add web search option to context menu
+            castMessageView.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
+                    return true;
+                }
+
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return true;
+                }
+
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    CharSequence selection = "Error getting selection!";
+                    try {
+                        // ensure that the start and end are in the right order, in case the selection start/end are flipped
+                        int start = Math.min(castMessageView.getSelectionEnd(), castMessageView.getSelectionStart());
+                        int end = Math.max(castMessageView.getSelectionEnd(), castMessageView.getSelectionStart());
+                        selection = castMessageView.getText().subSequence(start, end);
+                    } catch (Exception ignored) {}
+                    Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                    searchIntent.putExtra(SearchManager.QUERY, selection.toString());
+                    openIntent(searchIntent);
+                    return true;
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                }
+            });
+        }
     }
 
     private void showPosts() {
