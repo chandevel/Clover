@@ -187,6 +187,10 @@ public class MultiImageView
                 break;
             case GIFIMAGE:
                 ret = findView(GifImageView.class);
+                if (ret == null) {
+                    // possible that this is a single frame gif that was converted internally
+                    ret = findView(CustomScaleImageView.class);
+                }
                 break;
             case VIDEO:
                 ret = findView(StyledPlayerView.class);
