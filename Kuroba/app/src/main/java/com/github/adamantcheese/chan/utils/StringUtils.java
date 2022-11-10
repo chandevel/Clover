@@ -152,7 +152,7 @@ public class StringUtils {
             return string;
         }
 
-        return string.substring(0, maxLength / 2 + (maxLength % 2 - 1)) + "\u2026" + string.substring(string.length()
+        return string.substring(0, maxLength / 2 + (maxLength % 2 - 1)) + "…" + string.substring(string.length()
                 - maxLength / 2
                 - maxLength % 2);
     }

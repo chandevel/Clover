@@ -49,6 +49,10 @@ public class DatabaseFilterManager {
         return () -> helper.getFilterDao().createOrUpdate(filter);
     }
 
+    public Callable<Integer> createFilters(final Filters filters) {
+        return () -> helper.getFilterDao().create(filters);
+    }
+
     public Callable<Filters> getFilters() {
         return () -> new Filters(helper.getFilterDao().queryForAll());
     }

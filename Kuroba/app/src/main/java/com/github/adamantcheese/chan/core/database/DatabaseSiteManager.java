@@ -38,6 +38,10 @@ public class DatabaseSiteManager {
         return () -> helper.getSiteModelDao().queryForAll();
     }
 
+    public Callable<SiteModel> getForClassID(int classID) {
+        return () -> helper.getSiteModelDao().queryBuilder().where().eq("classID", classID).queryForFirst();
+    }
+
     public Callable<Integer> getCount() {
         return () -> (int) helper.getSiteModelDao().countOf();
     }

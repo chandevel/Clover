@@ -22,8 +22,7 @@ import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Registry of all sites and url handler we have.
@@ -60,5 +59,17 @@ public class SiteRegistry {
         //chan55 was here but was removed; don't use ID 7
         SITE_CLASSES.put(8, Kun8.class);
         //chan420 was here but was removed; don't use ID 9
+    }
+
+    public static int getClassIdForSiteName(String name) {
+        for (Map.Entry<Integer, Class<? extends Site>> siteClass : SITE_CLASSES.entrySet()) {
+            try {
+                Site s = siteClass.getValue().newInstance();
+                if (s.name().equals(name)) {
+                    return siteClass.getKey();
+                }
+            } catch (Exception ignored) {}
+        }
+        return 0;
     }
 }

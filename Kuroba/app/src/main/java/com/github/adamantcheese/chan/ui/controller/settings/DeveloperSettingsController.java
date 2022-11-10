@@ -258,6 +258,11 @@ public class DeveloperSettingsController
         clearBitmapCache.setText("Clear bitmap cache");
         wrapper.addView(clearBitmapCache);
 
+        Button clearHintPersistence = new Button(context);
+        clearHintPersistence.setOnClickListener(v -> BalloonPersistence.getInstance(context).clearAllPreferences());
+        clearHintPersistence.setText("Clear hint persistence");
+        wrapper.addView(clearHintPersistence);
+
         ScrollView scrollView = new ScrollView(context);
         updatePaddings(scrollView, dp(context, 16));
         scrollView.addView(wrapper);

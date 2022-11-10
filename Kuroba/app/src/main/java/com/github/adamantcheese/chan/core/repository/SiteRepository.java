@@ -211,10 +211,7 @@ public class SiteRepository {
         }
 
         private void add(@NonNull Site site) {
-            List<Site> copy = new ArrayList<>(sites);
-            copy.add(site);
-            resetSites(copy);
-            setChanged();
+            addAll(Collections.singletonList(site));
         }
 
         // We don't keep the order ourselves here, that's the task of listeners. Do notify the

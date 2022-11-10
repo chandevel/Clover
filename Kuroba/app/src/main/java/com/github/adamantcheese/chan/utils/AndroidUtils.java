@@ -499,7 +499,7 @@ public class AndroidUtils {
             s.setAction(actionResId, action);
         }
         if (BackgroundUtils.isInForeground()) {
-            BackgroundUtils.runOnMainThread(s::show);
+            s.show();
         }
         return s;
     }
