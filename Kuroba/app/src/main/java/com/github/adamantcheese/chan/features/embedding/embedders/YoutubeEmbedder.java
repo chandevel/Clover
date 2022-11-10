@@ -164,14 +164,16 @@ public class YoutubeEmbedder
             return new EmbedResult(
                     title,
                     duration,
-                    new PostImage.Builder()
-                        .serverFilename(thumbnailDefaultUrl)
-                        .thumbnailUrl(HttpUrl.get(thumbnailDefaultUrl))
-                        .imageUrl(HttpUrl.get(thumbnailMaxResUrl))
-                        .filename(title)
-                        .extension("jpg")
-                        .isInlined()
-                        .build()
+                    thumbnailDefaultUrl != null ?
+                            new PostImage.Builder()
+                                    .serverFilename(thumbnailDefaultUrl)
+                                    .thumbnailUrl(HttpUrl.get(thumbnailDefaultUrl))
+                                    .imageUrl(HttpUrl.get(thumbnailMaxResUrl))
+                                    .filename(title)
+                                    .extension("jpg")
+                                    .isInlined()
+                                    .build()
+                            : null
             );
         }).chain(input -> {
             Matcher paramsMatcher = API_PARAMS.matcher(response.body().string());
