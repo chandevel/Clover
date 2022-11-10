@@ -5,6 +5,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUti
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
@@ -78,12 +79,16 @@ public class YoutubeEmbedder
             HttpUrl url = response.request().url();
             String title = null;
             String duration = null;
+            String thumbnailBaseUrl = null;
             input.beginObject();
             while (input.hasNext()) {
                 if ("videoDetails".equals(input.nextName())) {
                     input.beginObject();
                     while (input.hasNext()) {
                         switch (input.nextName()) {
+                            case "videoId":
+                                thumbnailBaseUrl = "https://img.youtube.com/vi/" + input.nextString() + "/";
+                                break;
                             case "title":
                                 title = URLDecoder.decode(input.nextString(), "UTF-8");
                                 break;
@@ -114,8 +119,18 @@ public class YoutubeEmbedder
                 duration += urlString.contains("autoplay") ? "[AUTOPLAY]" : "";
                 duration += urlString.contains("loop") ? "[LOOP]" : "";
             }
-
-            return new EmbedResult(title, duration, null);
+            return new EmbedResult(
+                    title,
+                    duration,
+                    new PostImage.Builder()
+                        .serverFilename(thumbnailBaseUrl + "default.jpg")
+                        .thumbnailUrl(HttpUrl.get(thumbnailBaseUrl + "default.jpg"))
+                        .imageUrl(HttpUrl.get(thumbnailBaseUrl + "maxresdefault.jpg"))
+                        .filename(title)
+                        .extension("jpg")
+                        .isInlined()
+                        .build()
+            );
         }).chain(input -> {
             Matcher paramsMatcher = API_PARAMS.matcher(response.body().string());
             if (paramsMatcher.find()) {
