@@ -79,7 +79,8 @@ public class YoutubeEmbedder
             HttpUrl url = response.request().url();
             String title = null;
             String duration = null;
-            String thumbnailBaseUrl = null;
+            String thumbnailDefaultUrl = null;
+            String thumbnailMaxResUrl = null;
             input.beginObject();
             while (input.hasNext()) {
                 if ("videoDetails".equals(input.nextName())) {
@@ -87,7 +88,7 @@ public class YoutubeEmbedder
                     while (input.hasNext()) {
                         switch (input.nextName()) {
                             case "videoId":
-                                thumbnailBaseUrl = "https://img.youtube.com/vi/" + input.nextString() + "/";
+                                thumbnailDefaultUrl = "https://img.youtube.com/vi/" + input.nextString() + "/default.jpg";
                                 break;
                             case "title":
                                 title = URLDecoder.decode(input.nextString(), "UTF-8");
@@ -99,6 +100,42 @@ public class YoutubeEmbedder
                                 if (input.nextBoolean()) {
                                     duration = "[LIVE]";
                                 }
+                                break;
+                            case "thumbnail":
+                                input.beginObject();
+                                input.nextName();
+                                input.beginArray();
+                                int maxArea = 0;
+                                while (input.hasNext()) {
+                                    String currThumbnailUrl = null;
+                                    int w = 0;
+                                    int h = 0;
+                                    input.beginObject();
+                                    while (input.hasNext()) {
+                                        switch (input.nextName()) {
+                                            case "url":
+                                                // has some URL parameter ?sqp= we don't care about so split on ? and take [0]
+                                                currThumbnailUrl = input.nextString().split("\\?", 2)[0];
+                                                break;
+                                            case "width":
+                                                w = Integer.parseInt(input.nextString());
+                                                break;
+                                            case "height":
+                                                h = Integer.parseInt(input.nextString());
+                                                break;
+                                            default:
+                                                input.skipValue();
+                                                break;
+                                        }
+                                    }
+                                    if (w * h > maxArea) {
+                                        maxArea = w * h;
+                                        thumbnailMaxResUrl = currThumbnailUrl;
+                                    }
+                                    input.endObject();
+                                }
+                                input.endArray();
+                                input.endObject();
                                 break;
                             default:
                                 input.skipValue();
@@ -119,13 +156,18 @@ public class YoutubeEmbedder
                 duration += urlString.contains("autoplay") ? "[AUTOPLAY]" : "";
                 duration += urlString.contains("loop") ? "[LOOP]" : "";
             }
+
+            if (thumbnailMaxResUrl == null) { // should never happen but just in case
+                thumbnailMaxResUrl = thumbnailDefaultUrl;
+            }
+
             return new EmbedResult(
                     title,
                     duration,
                     new PostImage.Builder()
-                        .serverFilename(thumbnailBaseUrl + "default.jpg")
-                        .thumbnailUrl(HttpUrl.get(thumbnailBaseUrl + "default.jpg"))
-                        .imageUrl(HttpUrl.get(thumbnailBaseUrl + "maxresdefault.jpg"))
+                        .serverFilename(thumbnailDefaultUrl)
+                        .thumbnailUrl(HttpUrl.get(thumbnailDefaultUrl))
+                        .imageUrl(HttpUrl.get(thumbnailMaxResUrl))
                         .filename(title)
                         .extension("jpg")
                         .isInlined()
