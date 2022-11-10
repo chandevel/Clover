@@ -522,7 +522,7 @@ public class ReplyPresenter
     }
 
     public void cancelReply() {
-        if (replyCall != null) {
+        if (replyCall != null && replyCall.get() != null) {
             replyCall.get().cancel();
             replyCall = null;
         }
