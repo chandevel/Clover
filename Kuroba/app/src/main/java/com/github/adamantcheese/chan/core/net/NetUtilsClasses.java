@@ -371,6 +371,7 @@ public class NetUtilsClasses {
         public Response execute() {
             if (cancelled) return new Response.Builder()
                     .code(418)
+                    .request(request)
                     .body(new EmptyResponseBody())
                     .protocol(Protocol.HTTP_1_1)
                     .build();
