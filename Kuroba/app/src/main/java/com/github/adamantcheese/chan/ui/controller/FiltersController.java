@@ -508,10 +508,10 @@ public class FiltersController
                             created.pattern = attributeEntry;
                         } else if (attributeEntry.length() == 32) {
                             // probably MD5
-                            created.pattern = attributeEntry;
+                            created.pattern = "/" + attributeEntry + "/";
                         } else {
                             // probably an ID?
-                            created.pattern = attributeEntry;
+                            created.pattern = "/" + attributeEntry + "/";
                         }
                         break;
                 }
