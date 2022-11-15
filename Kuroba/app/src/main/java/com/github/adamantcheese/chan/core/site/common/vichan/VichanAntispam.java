@@ -89,6 +89,7 @@ public class VichanAntispam {
                 callback,
                 null,
                 NetUtilsClasses.NO_CACHE,
+                null,
                 0,
                 true
         );

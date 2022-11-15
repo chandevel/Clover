@@ -575,7 +575,7 @@ public class NetUtils {
             @Nullable final CacheControl cacheControl,
             int timeoutMs
     ) {
-        return makeCall(client, url, converter, result, progressListener, cacheControl, timeoutMs, true).first;
+        return makeCall(client, url, converter, result, progressListener, cacheControl, null, timeoutMs, true).first;
     }
 
     /**
@@ -589,6 +589,7 @@ public class NetUtils {
      * @param progressListener An optional progress listener for this response
      * @param <T>              Your result type
      * @param cacheControl     Set cache parameters for this request
+     * @param extraHeaders     Extra headers for this request
      * @param timeoutMs        Optional timeout in milliseconds
      * @param enqueue          whether or not to enqueue this call as a step
      * @return An optionally enqueued call along with the callback it is associated with. WILL RUN RESULT ON BACKGROUND OKHTTP THREAD!
@@ -600,6 +601,7 @@ public class NetUtils {
             @NonNull final ResponseResult<T> result,
             @Nullable final ProgressResponseBody.ProgressListener progressListener,
             @Nullable final CacheControl cacheControl,
+            @Nullable final Headers extraHeaders,
             int timeoutMs,
             boolean enqueue
     ) {
@@ -615,6 +617,9 @@ public class NetUtils {
         Request.Builder builder = new Request.Builder().url(url).addHeader("Referer", url.toString());
         if (cacheControl != null) {
             builder.cacheControl(cacheControl);
+        }
+        if (extraHeaders != null) {
+            builder.headers(extraHeaders);
         }
         Call call = clientBuilder.build().newCall(builder.build());
         Callback callback = new Callback() {

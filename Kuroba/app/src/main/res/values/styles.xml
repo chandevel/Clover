@@ -39,6 +39,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="divider_color">#20000000</item>
         <item name="setting_description_top">@drawable/setting_description_top</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom</item>
+
+        <!--
+        NOTES
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        -->
     </style>
 
     <style name="Chan.Theme.BaseDark" parent="Theme.AppCompat.NoActionBar">
@@ -63,6 +70,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="divider_color">#28FFFFFF</item>
         <item name="setting_description_top">@drawable/setting_description_top_dark</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
+
+        <!--
+        NOTES
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        -->
     </style>
 
     <style name="ChanStartup" parent="Chan.Theme.Dark">

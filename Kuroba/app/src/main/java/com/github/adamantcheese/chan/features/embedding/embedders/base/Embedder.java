@@ -40,6 +40,10 @@ public interface Embedder
         return (int) TimeUnit.SECONDS.toMillis(3);
     }
 
+    default Headers getExtraHeaders() {
+        return null;
+    }
+
     /**
      * This is used for the helper calls in EmbeddingEngine for a "standard" embed of icon-title-duration.
      *

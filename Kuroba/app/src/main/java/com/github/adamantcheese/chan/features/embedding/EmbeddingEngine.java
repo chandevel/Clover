@@ -96,7 +96,7 @@ public class EmbeddingEngine
         // Image embedders
         defaults.add(new PixivEmbedder());
         defaults.add(new DlsiteEmbedder());
-        // defaults.add(new ImgurEmbedder());
+        defaults.add(new ImgurEmbedder());
 
         // Text embedders
         defaults.add(new StrawpollEmbedder());
@@ -259,6 +259,7 @@ public class EmbeddingEngine
                         ),
                         null,
                         NetUtilsClasses.ONE_DAY_CACHE,
+                        embedder.getExtraHeaders(),
                         embedder.getTimeoutMillis(),
                         false
                 ));
