@@ -52,6 +52,8 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
 import com.google.android.exoplayer2.source.*;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.cache.*;
 
@@ -92,7 +94,6 @@ public class MultiImageView
     private Mode mode = Mode.UNLOADED;
     private Call thumbnailRequest;
     private Call request;
-    private ExoPlayer exoPlayer;
 
     private boolean hasContent = false;
     private boolean requestedBackgroundOpacity = ChanSettings.useOpaqueBackgrounds.get();
@@ -126,8 +127,9 @@ public class MultiImageView
 
     @Override
     public void onPause(@NonNull LifecycleOwner owner) {
-        if (exoPlayer != null) {
-            exoPlayer.pause();
+        Player exoplayer = getExoplayerPlayer();
+        if (exoplayer != null) {
+            exoplayer.pause();
         }
     }
 
@@ -212,6 +214,16 @@ public class MultiImageView
         return null;
     }
 
+    @Nullable
+    private Player getExoplayerPlayer() {
+        View activeView = getActiveView();
+        if (activeView instanceof StyledPlayerView) {
+            StyledPlayerView activePlayerView = (StyledPlayerView) activeView;
+            return activePlayerView.getPlayer();
+        }
+        return null;
+    }
+
     @Override
     public boolean isImageAlreadySaved() {
         return imageAlreadySaved;
@@ -243,6 +255,7 @@ public class MultiImageView
 
     @Override
     public void togglePlayState() {
+        Player exoPlayer = getExoplayerPlayer();
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(!exoPlayer.getPlayWhenReady());
         }
@@ -259,6 +272,7 @@ public class MultiImageView
     }
 
     public void setVolume(boolean muted) {
+        Player exoPlayer = getExoplayerPlayer();
         if (exoPlayer != null) {
             exoPlayer.setVolume(muted ? 0f : 1f);
         }
@@ -278,10 +292,10 @@ public class MultiImageView
             request = null;
         }
 
+        Player exoPlayer = getExoplayerPlayer();
         if (exoPlayer != null) {
             // ExoPlayer will keep loading resources if we don't release it here.
             exoPlayer.release();
-            exoPlayer = null;
         }
 
         if (getContext() instanceof LifecycleOwner) {
@@ -489,9 +503,8 @@ public class MultiImageView
         if (!hasContent || mode == Mode.VIDEO) {
             StyledPlayerView exoVideoView = new StyledPlayerView(getContext());
             exoVideoView.setUseController(!ChanSettings.neverShowWebmControls.get());
-            exoPlayer = new ExoPlayer.Builder(getContext()).build();
-            exoVideoView.setPlayer(exoPlayer);
-
+            ExoPlayer.Builder exoPlayerBuilder = new ExoPlayer.Builder(getContext());
+            ExoPlayer exoPlayer;
             MediaSource videoSource = MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString()));
             try {
                 if (ChanSettings.enableSoundposts.get()) {
@@ -504,15 +517,31 @@ public class MultiImageView
                         soundURL = "https://" + soundURL;
                     }
                     MediaSource soundSource = MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(soundURL));
+
                     if (postImage.type == PostImage.Type.STATIC) {
+                        // for static images, we want to display the image and overlay the sound
+                        // exoplayer will attempt to play video contained inside of soundpost link, so we need to disable that
+                        // we also need to disable any custom artwork so it doesn't override when we load the image as the default artwork
+                        TrackSelector soundpostSelector = new DefaultTrackSelector(getContext());
+                        soundpostSelector.setParameters(soundpostSelector
+                                .getParameters()
+                                .buildUpon()
+                                .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, true)
+                                .setTrackTypeDisabled(C.TRACK_TYPE_IMAGE, true)
+                                .build());
+                        exoPlayer = exoPlayerBuilder.setTrackSelector(soundpostSelector).build();
                         exoPlayer.setMediaSource(soundSource);
                     } else {
+                        // for non-static images, we just play the video as normal, because the video source will be selected
+                        // for video display, and the sound source for sound only, ignoring any video it has
+                        exoPlayer = exoPlayerBuilder.build();
                         exoPlayer.setMediaSource(new MergingMediaSource(videoSource, soundSource));
                     }
                 } else {
                     throw new Exception("Fallback to no soundpost");
                 }
             } catch (Exception e) {
+                exoPlayer = exoPlayerBuilder.build();
                 exoPlayer.setMediaSource(videoSource);
             }
             exoPlayer.prepare();
@@ -531,26 +560,23 @@ public class MultiImageView
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
-            NetUtils.makeBitmapRequest(postImage.type == PostImage.Type.STATIC
-                            ? postImage.imageUrl
-                            : postImage.thumbnailUrl,
-                    new BitmapResult() {
-                        @Override
-                        public void onBitmapFailure(
-                                @NonNull HttpUrl source, Exception e
-                        ) {
-                            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
-                        }
+            NetUtils.makeBitmapRequest(postImage.imageUrl, new BitmapResult() {
+                @Override
+                public void onBitmapFailure(
+                        @NonNull HttpUrl source, Exception e
+                ) {
+                    exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
+                }
 
-                        @Override
-                        public void onBitmapSuccess(
-                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
-                        ) {
-                            exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
-                        }
-                    }
-            );
+                @Override
+                public void onBitmapSuccess(
+                        @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
+                ) {
+                    exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
+                }
+            });
             setVolume(getDefaultMuteState());
+            exoVideoView.setPlayer(exoPlayer);
             exoPlayer.play();
             onModeLoaded(Mode.VIDEO, exoVideoView);
         }
