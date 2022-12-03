@@ -22,10 +22,10 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.RelativeLayout.RIGHT_OF;
+import static com.github.adamantcheese.chan.core.saver.ImageSaveTask.copyImageToClipboard;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
@@ -599,11 +599,9 @@ public class PostCell
             });
 
             if (ChanSettings.enableLongPressURLCopy.get()) {
-                holder.thumbnailView.setOnLongClickListener(v -> {
-                    setClipboardContent("Image URL", image.imageUrl.toString());
-                    showToast(getContext(), R.string.image_url_copied_to_clipboard);
-                    return true;
-                });
+                holder.thumbnailView.setOnLongClickListener(v -> copyImageToClipboard(holder.itemView.getContext(),
+                        image
+                ));
             }
         }
 

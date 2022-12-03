@@ -21,6 +21,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.net.Uri;
 import android.text.Spanned;
 import android.util.AttributeSet;
 
@@ -28,7 +29,8 @@ import androidx.appcompat.widget.AppCompatEditText;
 
 public class SelectionListeningEditText
         extends AppCompatEditText {
-    private SelectionChangedListener listener;
+    private SelectionChangedListener selectionChangedListener;
+    private ImagePastedListener imagePastedListener;
     private boolean plainTextPaste = false;
 
     public SelectionListeningEditText(Context context) {
@@ -44,7 +46,11 @@ public class SelectionListeningEditText
     }
 
     public void setSelectionChangedListener(SelectionChangedListener listener) {
-        this.listener = listener;
+        this.selectionChangedListener = listener;
+    }
+
+    public void setImagePastedListener(ImagePastedListener listener) {
+        this.imagePastedListener = listener;
     }
 
     @Override
@@ -63,8 +69,8 @@ public class SelectionListeningEditText
     protected void onSelectionChanged(int selStart, int selEnd) {
         super.onSelectionChanged(selStart, selEnd);
 
-        if (listener != null) {
-            listener.onSelectionChanged();
+        if (selectionChangedListener != null) {
+            selectionChangedListener.onSelectionChanged();
         }
     }
 
@@ -75,6 +81,17 @@ public class SelectionListeningEditText
         int end = getSelectionEnd();
         int min = isFocused() ? Math.max(0, Math.min(start, end)) : 0;
         int max = isFocused() ? Math.max(0, Math.max(start, end)) : getText().length();
+        if (id == android.R.id.paste) {
+            ClipData clip = getClipboardManager().getPrimaryClip();
+            if (clip != null) {
+                for (int i = 0; i < clip.getItemCount(); i++) {
+                    ClipData.Item item = clip.getItemAt(i);
+                    if (item.getUri() != null) {
+                        imagePastedListener.onImagePasted(item.getUri());
+                    }
+                }
+            }
+        }
         if (id == android.R.id.paste && plainTextPaste) {
             //this code is basically a duplicate of the plain text paste functionality for later API versions
             ClipData clip = getClipboardManager().getPrimaryClip();
@@ -107,5 +124,9 @@ public class SelectionListeningEditText
 
     public interface SelectionChangedListener {
         void onSelectionChanged();
+    }
+
+    public interface ImagePastedListener {
+        void onImagePasted(Uri imageUri);
     }
 }

@@ -212,6 +212,7 @@ public class ChanSettings {
     public static final BooleanSetting repliesButtonsBottom;
     public static final BooleanSetting volumeKeysScrolling;
     public static final BooleanSetting enableLongPressURLCopy;
+    public static final BooleanSetting copyImage;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting shortTapPostCellQuote;
 
@@ -403,6 +404,7 @@ public class ChanSettings {
             repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
             volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
             enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
+            copyImage = new BooleanSetting(p, "preference_copy_image", false);
             shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
             shortTapPostCellQuote = new BooleanSetting(p, "preference_short_tap_post_cell_quote", false);
 

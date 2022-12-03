@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
@@ -28,6 +29,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
@@ -57,6 +59,8 @@ import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.*;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import com.skydoves.balloon.ArrowOrientation;
 import com.skydoves.balloon.Balloon;
 import com.vdurmont.emoji.EmojiParser;
@@ -64,13 +68,14 @@ import com.vdurmont.emoji.EmojiParser;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 public class ReplyLayout
         extends LoadView
         implements ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-                   SelectionListeningEditText.SelectionChangedListener, CaptchaTokenHolder.CaptchaValidationListener {
+                   SelectionListeningEditText.SelectionChangedListener, SelectionListeningEditText.ImagePastedListener,
+                   CaptchaTokenHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
 
@@ -274,6 +279,7 @@ public class ReplyLayout
         comment.addTextChangedListener(this);
         fileName.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
+        comment.setImagePastedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
             if (!focused) hideKeyboard(comment);
         });
@@ -711,8 +717,7 @@ public class ReplyLayout
     public void setExpanded(boolean expanded) {
         setWrappingMode(expanded);
         comment.setMaxLines(expanded ? 500 : 6);
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(
-                MATCH_PARENT,
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
                 (int) dp(getContext(), expanded ? 300 : 200)
         ));
         more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
@@ -880,6 +885,20 @@ public class ReplyLayout
     @Override
     public void onSelectionChanged() {
         presenter.onSelectionChanged();
+    }
+
+    @Override
+    public void onImagePasted(Uri uri) {
+        try {
+            File tempFile = new File(new File(getCacheDir(), "requested"), "copied_file." + uri.getLastPathSegment());
+            tempFile.getParentFile().mkdirs();
+            try (InputStream uriStream = getContext().getContentResolver().openInputStream(uri)) {
+                try (OutputStream fileStream = new FileOutputStream(tempFile)) {
+                    ByteStreams.copy(uriStream, fileStream);
+                    presenter.onFilePicked("copied_file." + Files.getFileExtension(uri.getLastPathSegment()), tempFile);
+                } catch (Exception ignored) {}
+            } catch (Exception ignored) {}
+        } catch (Exception ignored) {}
     }
 
     private void setupCommentContextMenu() {

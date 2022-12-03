@@ -214,6 +214,11 @@ public class BehaviourSettingsController
             ));
 
             post.add(new BooleanSettingView(this,
+                    ChanSettings.copyImage,
+                    R.string.settings_copy_image,
+                    R.string.settings_copy_image_description));
+
+            post.add(new BooleanSettingView(this,
                     ChanSettings.shareUrl,
                     R.string.setting_share_url,
                     R.string.setting_share_url_description

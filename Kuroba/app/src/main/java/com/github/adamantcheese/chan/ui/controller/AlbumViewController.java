@@ -16,9 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.core.saver.ImageSaveTask.copyImageToClipboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
 import android.content.Context;
 import android.view.*;
@@ -213,16 +212,9 @@ public class AlbumViewController
                 super(view);
                 this.thumbnailView = view.findViewById(R.id.image);
 
-                thumbnailView.setOnLongClickListener(v -> {
-                    if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
-                        return false;
-                    }
-
-                    setClipboardContent("Image URL", postImage.imageUrl.toString());
-                    showToast(itemView.getContext(), R.string.image_url_copied_to_clipboard);
-
-                    return true;
-                });
+                if (ChanSettings.enableLongPressURLCopy.get()) {
+                    thumbnailView.setOnLongClickListener(v -> copyImageToClipboard(v.getContext(), postImage));
+                }
 
                 thumbnailView.setOnClickListener(v -> {
                     final ImageViewerNavigationController imageViewer = new ImageViewerNavigationController(context);

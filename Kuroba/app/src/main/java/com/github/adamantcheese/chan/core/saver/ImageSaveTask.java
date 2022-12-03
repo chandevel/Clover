@@ -19,21 +19,24 @@ package com.github.adamantcheese.chan.core.saver;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Failure;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Success;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
-import android.content.Intent;
+import android.content.*;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
-import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.*;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -290,5 +293,39 @@ public class ImageSaveTask {
         }
 
         return false;
+    }
+
+    public static boolean copyImageToClipboard(Context context, @Nullable PostImage image) {
+        if (image == null) return false;
+        if (ChanSettings.copyImage.get()) {
+            NetUtils.makeFileRequest(image.imageUrl,
+                    image.filename,
+                    image.extension,
+                    new NetUtilsClasses.ResponseResult<File>() {
+                        @Override
+                        public void onFailure(Exception e) {
+                            setClipboardContent("Image URL", image.imageUrl.toString());
+                            showToast(context, R.string.image_copied_failed);
+                        }
+
+                        @Override
+                        public void onSuccess(File result) {
+                            Uri imageUri =
+                                    FileProvider.getUriForFile(getAppContext(), BuildConfig.FILE_PROVIDER, result);
+                            getClipboardManager().setPrimaryClip(ClipData.newUri(
+                                    context.getContentResolver(),
+                                    "Post image",
+                                    imageUri
+                            ));
+                            showToast(context, R.string.image_copied_to_clipboard);
+                        }
+                    },
+                    null
+            );
+        } else {
+            setClipboardContent("Image URL", image.imageUrl.toString());
+            showToast(context, R.string.image_url_copied_to_clipboard);
+        }
+        return true;
     }
 }

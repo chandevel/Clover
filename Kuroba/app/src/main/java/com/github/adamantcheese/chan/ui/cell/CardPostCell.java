@@ -17,9 +17,9 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+import static com.github.adamantcheese.chan.core.saver.ImageSaveTask.copyImageToClipboard;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
@@ -197,14 +197,7 @@ public class CardPostCell
 
         thumbView.setOnClickListener((view) -> callback.onThumbnailClicked(post.image(), thumbView));
         if (ChanSettings.enableLongPressURLCopy.get()) {
-            thumbView.setOnLongClickListener(v -> {
-                if (post.image() != null) {
-                    setClipboardContent("Image URL", post.image().imageUrl.toString());
-                    showToast(getContext(), R.string.image_url_copied_to_clipboard);
-                    return true;
-                }
-                return false;
-            });
+            thumbView.setOnLongClickListener(v -> copyImageToClipboard(v.getContext(), post.image()));
         }
 
         filterMatchColor.setColors(post.filterHighlightedColors);

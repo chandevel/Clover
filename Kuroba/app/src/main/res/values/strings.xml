@@ -721,4 +721,9 @@ Don't have a 4chan Pass?<br>
     <string name="opacity">Opacity</string>
     <string name="image_info">Image info</string>
     <string name="label">Label</string>
+
+    <string name="settings_copy_image">Copy images instead of URLs</string>
+    <string name="settings_copy_image_description">Copy images instead of URLs to the clipbaord; may be slow on some connections</string>
+    <string name="image_copied_to_clipboard">Image copied to clipboard!</string>
+    <string name="image_copied_failed">Image failed to copy; falling back to URL.</string>
 </resources>
