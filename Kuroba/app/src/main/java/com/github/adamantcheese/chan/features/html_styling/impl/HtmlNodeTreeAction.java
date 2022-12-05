@@ -39,7 +39,7 @@ public class HtmlNodeTreeAction
             } else if (node instanceof TextNode) {
                 return textAction.style(node, ((TextNode) node).getWholeText());
             } else {
-                Logger.e(this, "Unknown node instance: " + node.getClass().getName());
+                Logger.w(this, "Unknown node instance: " + node.getClass().getName());
             }
         } catch (Exception e) {
             Logger.e(this, "Error parsing element html", e);

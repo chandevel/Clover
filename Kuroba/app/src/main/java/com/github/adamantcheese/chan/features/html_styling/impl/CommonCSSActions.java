@@ -157,7 +157,7 @@ public class CommonCSSActions {
         for (String s : styles) {
             String[] rule = s.split(":");
             if (rule.length != 2) {
-                Logger.d("INLINE_CSS", "Failed to parse style " + s);
+                Logger.vd("INLINE_CSS", "Failed to parse style " + s);
                 continue;
             }
             temp.attr(rule[0], rule[1]);
@@ -182,7 +182,7 @@ public class CommonCSSActions {
                         break; // ignore anything else
                 }
             } catch (Exception e) {
-                Logger.d("INLINE_CSS", "Failed to apply style " + a);
+                Logger.vd("INLINE_CSS", "Failed to apply style " + a);
             }
         }
         return text == null ? "" : text;

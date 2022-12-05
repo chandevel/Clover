@@ -43,8 +43,6 @@ import java.util.List;
 import kotlin.jvm.functions.Function1;
 
 public abstract class Controller {
-    private static final boolean LOG_STATES = false;
-
     public Context context;
     public ViewGroup view;
 
@@ -83,17 +81,11 @@ public abstract class Controller {
     @CallSuper
     public void onCreate() {
         alive = true;
-        if (LOG_STATES) {
-            Logger.test(getClass().getSimpleName() + " onCreate");
-        }
     }
 
     @CallSuper
     public void onShow() {
         shown = true;
-        if (LOG_STATES) {
-            Logger.test(getClass().getSimpleName() + " onShow");
-        }
 
         view.setVisibility(VISIBLE);
 
@@ -107,9 +99,6 @@ public abstract class Controller {
     @CallSuper
     public void onHide() {
         shown = false;
-        if (LOG_STATES) {
-            Logger.test(getClass().getSimpleName() + " onHide");
-        }
 
         view.setVisibility(GONE);
 
@@ -123,19 +112,12 @@ public abstract class Controller {
     @CallSuper
     public void onDestroy() {
         alive = false;
-        if (LOG_STATES) {
-            Logger.test(getClass().getSimpleName() + " onDestroy");
-        }
 
         while (childControllers.size() > 0) {
             removeChildController(childControllers.get(0));
         }
 
-        if (removeFromParentView(view)) {
-            if (LOG_STATES) {
-                Logger.test(getClass().getSimpleName() + " view removed onDestroy");
-            }
-        }
+        removeFromParentView(view);
     }
 
     public void addChildController(Controller controller) {
@@ -157,16 +139,10 @@ public abstract class Controller {
 
     public void attachToParentView(ViewGroup parentView) {
         if (view.getParent() != null) {
-            if (LOG_STATES) {
-                Logger.test(getClass().getSimpleName() + " view removed");
-            }
             removeFromParentView(view);
         }
 
         if (parentView != null) {
-            if (LOG_STATES) {
-                Logger.test(getClass().getSimpleName() + " view attached");
-            }
             attachToView(parentView);
         }
     }

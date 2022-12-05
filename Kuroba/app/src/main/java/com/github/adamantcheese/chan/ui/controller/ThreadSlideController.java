@@ -106,7 +106,7 @@ public class ThreadSlideController
             field.setAccessible(true);
             restoredOpen = field.getBoolean(slidingPaneLayout);
         } catch (Exception e) {
-            Logger.e(this, "Error getting restored open state with reflection", e);
+            Logger.w(this, "Error getting restored open state with reflection", e);
         }
         if (restoredOpen != leftOpen) {
             leftOpen = restoredOpen;

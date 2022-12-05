@@ -209,7 +209,7 @@ public class StartActivity
         // Restore the activity state from the previously saved state.
         ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
         if (chanState == null) {
-            Logger.w(this, "savedInstanceState was not null, but no ChanState was found!");
+            Logger.e(this, "savedInstanceState was not null, but no ChanState was found!");
         } else {
             Pair<Loadable, Loadable> boardThreadPair = resolveChanState(chanState);
 
@@ -359,7 +359,7 @@ public class StartActivity
 
         Loadable board = browseController.getLoadable();
         if (board == null) {
-            Logger.w(this, "Can not save instance state, the board loadable is null");
+            Logger.e(this, "Can not save instance state, the board loadable is null");
         } else {
             Loadable thread = null;
 

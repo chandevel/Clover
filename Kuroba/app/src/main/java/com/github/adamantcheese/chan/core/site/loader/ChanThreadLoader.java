@@ -311,7 +311,7 @@ public class ChanThreadLoader {
         call = null;
         clearTimer();
 
-        Logger.e(this, "Loading error", exception);
+        Logger.w(this, "Loading error", exception);
 
         for (ResponseResult<ChanThread> l : listeners) {
             BackgroundUtils.runOnMainThread(() -> l.onFailure(exception));

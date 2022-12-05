@@ -97,7 +97,7 @@ public class FilterWatchManager
             processing = true;
             populateFilterLoaders();
             if (!filterLoaders.keySet().isEmpty()) {
-                Logger.d(
+                Logger.i(
                         this,
                         "Processing "
                                 + numBoardsChecked
@@ -143,7 +143,6 @@ public class FilterWatchManager
             implements NetUtilsClasses.ResponseResult<ChanThread> {
         @Override
         public void onSuccess(ChanThread result) {
-            Logger.d(this, "onChanLoaderData() for /" + result.loadable.boardCode + "/");
             for (Post p : result.getPosts()) {
                 CatalogPost catalogPost = new CatalogPost(p);
                 //make pins for the necessary stuff
@@ -157,13 +156,13 @@ public class FilterWatchManager
                 //add all posts to ignore
                 lastCheckedPosts.add(catalogPost);
             }
-            Logger.d(this, "Filter loader processed, left " + numBoardsChecked);
+            Logger.i(this, "Filter loader for /" + result.loadable.boardCode + "/ processed, left " + numBoardsChecked);
             checkComplete();
         }
 
         @Override
         public void onFailure(Exception error) {
-            Logger.d(this, "Filter loader failed, left " + numBoardsChecked);
+            Logger.i(this, "Filter loader failed, left " + numBoardsChecked);
             checkComplete();
         }
 
@@ -177,7 +176,7 @@ public class FilterWatchManager
                 }
                 lastCheckedPosts.clear();
                 processing = false;
-                Logger.d(
+                Logger.i(
                         this,
                         "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale()
                 );

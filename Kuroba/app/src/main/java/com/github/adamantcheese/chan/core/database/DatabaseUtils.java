@@ -77,7 +77,7 @@ public class DatabaseUtils {
                             + ")");
                 }
             } catch (SQLException e) {
-                Logger.e("DatabaseManager", "Error trimming table " + dao.getTableName(), e);
+                Logger.w("DatabaseManager", "Error trimming table " + dao.getTableName(), e);
             }
             return null;
         };

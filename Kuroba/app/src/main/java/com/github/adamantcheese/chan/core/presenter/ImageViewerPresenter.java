@@ -390,7 +390,7 @@ public class ImageViewerPresenter
 
     private boolean cancelImageDownload(int position, Call downloader) {
         if (nonCancelableImages.contains(downloader.request().url())) {
-            Logger.d(this,
+            Logger.w(this,
                     "Attempt to cancel non cancelable download for image with url: " + downloader.request().url()
             );
             return false;

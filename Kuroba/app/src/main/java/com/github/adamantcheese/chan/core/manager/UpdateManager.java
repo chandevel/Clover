@@ -127,7 +127,7 @@ public class UpdateManager {
             }
         }
 
-        Logger.d(this, "Calling update API");
+        Logger.i(this, "Calling update API");
         if (!DEV_BUILD) {
             NetUtils.makeJsonRequest(HttpUrl.get(UPDATE_API_ENDPOINT),
                     new NetUtilsClasses.MainThreadResponseResult<>(new ResponseResult<UpdateApiResponse>() {
@@ -231,7 +231,7 @@ public class UpdateManager {
     }
 
     private void failedUpdate(boolean manual) {
-        Logger.e(this, "Failed to process " + (DEV_BUILD ? "dev" : "stable") + " API call for updating");
+        Logger.w(this, "Failed to process " + (DEV_BUILD ? "dev" : "stable") + " API call for updating");
         if (manual && BackgroundUtils.isInForeground()) {
             getDefaultAlertBuilder(context)
                     .setTitle(R.string.update_check_failed)

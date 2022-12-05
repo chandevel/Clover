@@ -57,7 +57,7 @@ public class SiteIcon {
             NetUtils.makeBitmapRequest(url, new BitmapResult() {
                 @Override
                 public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                    Logger.e(SiteIcon.this, "Error loading favicon", e);
+                    Logger.ve(SiteIcon.this, "Error loading favicon", e);
                     drawable = null;
                     res.onSiteIcon(new BitmapDrawable(getRes(), BitmapRepository.error));
                 }

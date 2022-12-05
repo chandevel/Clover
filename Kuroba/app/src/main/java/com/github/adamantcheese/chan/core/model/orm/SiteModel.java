@@ -51,7 +51,7 @@ public class SiteModel {
 
     public void storeUserSettings(JsonSettings userSettings) {
         this.userSettings = AppModule.gson.toJson(userSettings);
-        Logger.test("userSettings = " + this.userSettings);
+        Logger.vd(this, "userSettings = " + this.userSettings);
     }
 
     public JsonSettings loadConfig() {

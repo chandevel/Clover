@@ -72,7 +72,7 @@ public class ArchivesManager
                 archivesList = convert(reader);
             }
         } catch (Exception e) {
-            Logger.d(this, "Unable to load/parse internal archives list", e);
+            Logger.w(this, "Unable to load/parse internal archives list", e);
         }
 
         // fresh copy request, in case of updates (infrequent)

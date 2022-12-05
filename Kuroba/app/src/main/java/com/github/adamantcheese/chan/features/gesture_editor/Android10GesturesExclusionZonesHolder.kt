@@ -19,7 +19,7 @@ object Android10GesturesExclusionZonesHolder {
     private fun loadZones() {
         val json = ChanSettings.androidTenGestureZones.get()
         if (json.isEmpty() || !isAndroid10()) {
-            Logger.d(this, "Gesture zones reset, either empty or not Android 10+.")
+            Logger.vd(this, "Gesture zones reset, either empty or not Android 10+.")
             resetZones()
             return
         }
@@ -27,7 +27,7 @@ object Android10GesturesExclusionZonesHolder {
         val existingZones = try {
             AppModule.gson.fromJson(json, ExclusionZonesJson::class.java)
         } catch (error: Throwable) {
-            Logger.e(this, "Error while trying to parse zones json, reset.", error)
+            Logger.ve(this, "Error while trying to parse zones json, reset.", error)
             resetZones()
             return
         }
@@ -43,7 +43,7 @@ object Android10GesturesExclusionZonesHolder {
                     "oldMaxScreenSize = ${existingZones.maxScreenSize}, " +
                     "currentMaxScreenSize = $maxScreenSize"
 
-            Logger.d(this, "Screen sizes do not match! $sizesString")
+            Logger.w(this, "Screen sizes do not match! $sizesString")
             resetZones()
             return
         }
@@ -111,7 +111,7 @@ object Android10GesturesExclusionZonesHolder {
             )
             ChanSettings.androidTenGestureZones.setSync(json)
 
-            Logger.d(this, "Added zone $zoneRect for orientation $orientation")
+            Logger.i(this, "Added zone $zoneRect for orientation $orientation")
         }
     }
 
@@ -150,7 +150,7 @@ object Android10GesturesExclusionZonesHolder {
             )
             ChanSettings.androidTenGestureZones.setSync(json)
 
-            Logger.d(this, "Removed zone $exclusionZone for orientation $orientation")
+            Logger.i(this, "Removed zone $exclusionZone for orientation $orientation")
         }
     }
 

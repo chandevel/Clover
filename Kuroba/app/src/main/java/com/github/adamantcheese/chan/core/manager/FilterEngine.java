@@ -74,7 +74,7 @@ public class FilterEngine {
         try {
             return DatabaseUtils.runTask(databaseFilterManager.getFilters());
         } catch (Exception e) {
-            Logger.wtf(this, "Couldn't get all filters for some reason.");
+            Logger.w(this, "Couldn't get all filters. Returning empty list.");
             return new Filters();
         }
     }
@@ -243,7 +243,7 @@ public class FilterEngine {
             }
             return matched ? matcher.toMatchResult() : null;
         } else {
-            Logger.e(this, "Invalid pattern");
+            Logger.d(this, "Invalid pattern");
             return null;
         }
     }

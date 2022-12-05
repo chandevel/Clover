@@ -140,7 +140,7 @@ public class AppModule {
     public static File getCacheDir() {
         File cacheDir = getAppContext().getCacheDir();
         if (!cacheDir.exists() && !cacheDir.mkdirs()) {
-            Logger.e("AppModule", "cache dir creation failed, this may fail catastrophically!");
+            Logger.e(DI_TAG, "cache dir creation failed, this may fail catastrophically!");
         }
         return cacheDir;
     }

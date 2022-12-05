@@ -334,7 +334,7 @@ public class Chan4
             NetUtils.makeJsonRequest(endpoints().pages(board), new ResponseResult<ChanPages>() {
                 @Override
                 public void onFailure(Exception e) {
-                    Logger.e(Chan4.this, "Failed to get pages for board " + board.code, e);
+                    Logger.ve(Chan4.this, "Failed to get pages for board " + board.code, e);
                     listener.onSuccess(new ChanPages());
                 }
 

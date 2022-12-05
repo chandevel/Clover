@@ -488,7 +488,7 @@ public class ImageViewerController
         NetUtils.makeBitmapRequest(postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                Logger.e(
+                Logger.w(
                         ImageViewerController.this,
                         "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
                         e

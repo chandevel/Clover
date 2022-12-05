@@ -74,7 +74,7 @@ constructor(
                         writer.flush()
                     }
 
-                    Logger.d(TAG, "Exporting done!")
+                    Logger.i(TAG, "Exporting done!")
                     callbacks.onSuccess(Export)
                 }
 
@@ -91,7 +91,7 @@ constructor(
         DatabaseUtils.runTask {
             try {
                 if (!fileManager.exists(settingsFile)) {
-                    Logger.e(TAG, "There is nothing to import, importFile does not exist "
+                    Logger.w(TAG, "There is nothing to import, importFile does not exist "
                             + settingsFile.getFullPath())
                     callbacks.onNothingToImportExport(Import)
                     return@runTask
@@ -112,20 +112,20 @@ constructor(
                         val appSettings = AppModule.gson.fromJson(reader, ExportedAppSettings::class.java)
 
                         if (appSettings.isEmpty) {
-                            Logger.d(TAG, "There is nothing to import, appSettings is empty")
+                            Logger.w(TAG, "There is nothing to import, appSettings is empty")
                             callbacks.onNothingToImportExport(Import)
                             return@use
                         }
 
                         writeSettingsToDatabase(appSettings)
 
-                        Logger.d(TAG, "Importing done!")
+                        Logger.i(TAG, "Importing done!")
                         callbacks.onSuccess(Import)
                     }
                 }
 
             } catch (error: Throwable) {
-                Logger.e(TAG, "Error while trying to import settings", error)
+                Logger.w(TAG, "Error while trying to import settings", error)
                 callbacks.onError(error, Import)
             }
         }

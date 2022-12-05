@@ -318,7 +318,7 @@ public class ThreadPresenter
 
     @Override
     public void onFailure(Exception error) {
-        Logger.d(this, "onChanLoaderError()");
+        Logger.w(this, "onChanLoaderError()");
 
         //by default, a network error has occurred if the exception field is not null
         int errorMessageResId;

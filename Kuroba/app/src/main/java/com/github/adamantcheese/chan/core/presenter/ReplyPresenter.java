@@ -330,7 +330,7 @@ public class ReplyPresenter
                 errorMessage.append(": ").append(error);
             }
 
-            Logger.e(this, "onPostComplete error", errorMessage);
+            Logger.w(this, "onPostComplete error", errorMessage);
             switchPage(Page.INPUT);
             callback.openMessage(errorMessage);
         }
@@ -344,7 +344,7 @@ public class ReplyPresenter
 
     @Override
     public void onFailure(Exception exception) {
-        Logger.e(this, "onPostError", exception);
+        Logger.w(this, "onPostError", exception);
 
         switchPage(Page.INPUT);
 

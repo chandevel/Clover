@@ -424,7 +424,7 @@ public class ChanSettings {
                 )
                         : null;
             } catch (Exception e) {
-                Logger.e("ChanSettings Proxy", "Failed to set up proxy! Using to OkHttp's default.", e);
+                Logger.w("ChanSettings Proxy", "Failed to set up proxy! Using to OkHttp's default.", e);
                 proxy = null;
             }
             //endregion

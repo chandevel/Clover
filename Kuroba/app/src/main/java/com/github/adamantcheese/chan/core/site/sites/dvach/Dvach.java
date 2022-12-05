@@ -176,7 +176,7 @@ public class Dvach
                 NetUtils.makeJsonRequest(endpoints().boards(), new ResponseResult<Boards>() {
                     @Override
                     public void onFailure(Exception e) {
-                        Logger.e(Dvach.this, "Failed to get boards from server", e);
+                        Logger.ve(Dvach.this, "Failed to get boards from server", e);
 
                         // API fail, provide some default boards
                         Boards list = new Boards();

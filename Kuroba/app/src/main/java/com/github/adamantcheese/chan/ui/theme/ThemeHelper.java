@@ -100,7 +100,7 @@ public class ThemeHelper {
         }
 
         if (!ok) {
-            Logger.e("ThemeHelper", "No theme found for setting, using default theme for day");
+            Logger.w("ThemeHelper", "No theme found for setting, using default theme for day");
             ChanSettings.themeDay.set(defaultDayTheme.toString());
         }
 
@@ -121,7 +121,7 @@ public class ThemeHelper {
         }
 
         if (!ok) {
-            Logger.e("ThemeHelper", "No theme found for setting, using default theme for day");
+            Logger.w("ThemeHelper", "No theme found for setting, using default theme for day");
             ChanSettings.themeNight.set(defaultNightTheme.toString());
         }
     }

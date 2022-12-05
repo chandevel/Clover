@@ -80,9 +80,9 @@ public class WakeManager {
 
     public void onBroadcastReceived(boolean doCheck) {
         long currentTime = System.currentTimeMillis();
-        Logger.d(this, "Alarm trigger @ " + StringUtils.getTimeDefaultLocale(currentTime));
+        Logger.vd(this, "Alarm trigger @ " + StringUtils.getTimeDefaultLocale(currentTime));
         if (doCheck && currentTime - lastBackgroundUpdateTime < ChanSettings.watchBackgroundInterval.get()) {
-            Logger.d(this, "Early; previous @ " + StringUtils.getTimeDefaultLocale(lastBackgroundUpdateTime));
+            Logger.vd(this, "Early; previous @ " + StringUtils.getTimeDefaultLocale(lastBackgroundUpdateTime));
         } else {
             lastBackgroundUpdateTime = currentTime;
             for (Wakeable wakeable : wakeableSet) {
@@ -114,7 +114,7 @@ public class WakeManager {
 
     public void registerWakeable(Wakeable wakeable) {
         boolean needsStart = wakeableSet.isEmpty();
-        Logger.d(this, "Registered " + wakeable.getClass());
+        Logger.vd(this, "Registered " + wakeable.getClass());
         wakeableSet.add(wakeable);
         if (!alarmRunning && needsStart) {
             startAlarm();
@@ -122,7 +122,7 @@ public class WakeManager {
     }
 
     public void unregisterWakeable(Wakeable wakeable) {
-        Logger.d(this, "Unregistered " + wakeable.getClass());
+        Logger.vd(this, "Unregistered " + wakeable.getClass());
         wakeableSet.remove(wakeable);
         if (alarmRunning && wakeableSet.isEmpty()) {
             stopAlarm();
@@ -160,7 +160,7 @@ public class WakeManager {
         WakeLock wakeLock = wakeLocks.get(locker);
         if (lock) {
             if (wakeLock != null) {
-                Logger.e(this, "Wakelock not null while trying to acquire one");
+                Logger.w(this, "Wakelock not null while trying to acquire one");
                 wakeLock.release();
                 wakeLocks.remove(locker);
             }
@@ -173,7 +173,7 @@ public class WakeManager {
             wakeLocks.put(locker, wakeLock);
         } else {
             if (wakeLock == null) {
-                Logger.e(this, "Wakelock null while trying to release it");
+                Logger.w(this, "Wakelock null while trying to release it");
             } else {
                 wakeLock.release();
                 wakeLocks.remove(locker);

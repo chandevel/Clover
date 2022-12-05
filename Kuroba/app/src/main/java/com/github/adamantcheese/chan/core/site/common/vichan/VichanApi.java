@@ -181,7 +181,7 @@ public class VichanApi
                 new ResponseResult<ChanPages>() {
                     @Override
                     public void onFailure(Exception e) {
-                        Logger.e(site, "Failed to get pages for board " + board.code, e);
+                        Logger.ve(site, "Failed to get pages for board " + board.code, e);
                         pagesListener.onSuccess(new ChanPages());
                     }
 

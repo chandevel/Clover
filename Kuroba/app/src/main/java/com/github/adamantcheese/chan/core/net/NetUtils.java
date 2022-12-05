@@ -300,7 +300,7 @@ public class NetUtils {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 if (!isCancelledException(e)) {
-                    Logger.e("NetUtils", "Error loading bitmap from " + url);
+                    Logger.w("NetUtils", "Error loading bitmap from " + url);
                     runnable.setException(e);
                     runOrEnqueueOnMainThread(runnable, mainThread);
                 }

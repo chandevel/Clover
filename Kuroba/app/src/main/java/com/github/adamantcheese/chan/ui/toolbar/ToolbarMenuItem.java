@@ -86,7 +86,7 @@ public class ToolbarMenuItem {
 
     public void detach() {
         if (view == null) {
-            Logger.d(this, "Already detached");
+            Logger.w(this, "Already detached");
             return;
         }
 

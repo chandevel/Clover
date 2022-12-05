@@ -95,7 +95,7 @@ public class LogsController
                     .command("logcat", "-v", "tag", "-t", String.valueOf(linesCount), "StrictMode:S")
                     .start();
         } catch (IOException e) {
-            Logger.e(TAG, "Error starting logcat", e);
+            Logger.w(TAG, "Error starting logcat", e);
             return null;
         }
 

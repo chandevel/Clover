@@ -49,7 +49,7 @@ public class ChainStyleAction
         try {
             return next.style(node, styledInnerText);
         } catch (Exception e) {
-            Logger.v(this, "Failed style action", e);
+            Logger.vd(this, "Failed style action", e);
         }
         return NO_OP.style(node, styledInnerText);
     }

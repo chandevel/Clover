@@ -139,7 +139,7 @@ public class ImageSaver {
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnError((error) -> imageSaveTaskFailed(t, error))
                         .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
-                        .doOnError((error) -> Logger.e(ImageSaver.this, "Unhandled exception", error))
+                        .doOnError((error) -> Logger.w(ImageSaver.this, "Unhandled exception", error))
                         .onErrorReturnItem(TaskResult.Failure), false, CONCURRENT_REQUESTS_COUNT)
                 .subscribe((result) -> {
                     // Do nothing
@@ -200,7 +200,7 @@ public class ImageSaver {
             onBatchCompleted();
         }
 
-        Logger.e(this, "imageSaveTaskFailed imageUrl = " + task.postImage.imageUrl);
+        Logger.w(this, "imageSaveTaskFailed imageUrl = " + task.postImage.imageUrl);
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
         EventBus.getDefault().post(new StartActivity.ActivityToastMessage(errorMessage, Toast.LENGTH_LONG));
@@ -214,7 +214,7 @@ public class ImageSaver {
             activeDownloads.remove(task.postImage.imageUrl);
         }
 
-        Logger.d(this, "imageSaveTaskFinished imageUrl = " + task.postImage.imageUrl);
+        Logger.vd(this, "imageSaveTaskFinished imageUrl = " + task.postImage.imageUrl);
         boolean wasAlbumSave = totalTasks.get() > 1;
 
         if (checkBatchCompleted()) {

@@ -271,9 +271,9 @@ public class DatabaseHelper
 
         if (oldVersion < 38) {
             try {
-                Logger.d(this, "Removing Chan55");
+                Logger.i(this, "Removing Chan55");
                 deleteSiteByRegistryID(7);
-                Logger.d(this, "Removed Chan55 successfully");
+                Logger.i(this, "Removed Chan55 successfully");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 38", e);
             }
@@ -281,9 +281,9 @@ public class DatabaseHelper
 
         if (oldVersion < 39) {
             try {
-                Logger.d(this, "Removing 8Chan");
+                Logger.i(this, "Removing 8Chan");
                 deleteSiteByRegistryID(1);
-                Logger.d(this, "Removed 8Chan successfully");
+                Logger.i(this, "Removed 8Chan successfully");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 39", e);
             }
@@ -371,9 +371,9 @@ public class DatabaseHelper
 
         if (oldVersion < 43) {
             try {
-                Logger.d(this, "Removing Arisuchan");
+                Logger.i(this, "Removing Arisuchan");
                 deleteSiteByRegistryID(3);
-                Logger.d(this, "Removed Arisuchan successfully");
+                Logger.i(this, "Removed Arisuchan successfully");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 43", e);
             }
@@ -570,9 +570,9 @@ public class DatabaseHelper
 
         if (oldVersion < 57) {
             try {
-                Logger.d(this, "Removing 420Chan");
+                Logger.i(this, "Removing 420Chan");
                 deleteSiteByRegistryID(9);
-                Logger.d(this, "Removed 420Chan successfully");
+                Logger.i(this, "Removed 420Chan successfully");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 57", e);
             }

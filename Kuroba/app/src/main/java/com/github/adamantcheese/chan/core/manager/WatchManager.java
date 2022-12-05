@@ -644,7 +644,7 @@ public class WatchManager
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.d(
+            Logger.i(
                     this,
                     waitingForPinWatchersForBackgroundUpdate.size()
                             + " pin watchers beginning updates, started at "
@@ -663,7 +663,7 @@ public class WatchManager
                 waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
 
                 if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-                    Logger.d(this, "All watchers updated, finished at " + StringUtils.getCurrentTimeDefaultLocale());
+                    Logger.i(this, "All watchers updated, finished at " + StringUtils.getCurrentTimeDefaultLocale());
                     waitingForPinWatchersForBackgroundUpdate = null;
                     WakeManager.getInstance().manageLock(false, WatchManager.this);
                 }
@@ -793,7 +793,7 @@ public class WatchManager
 
         @Override
         public void onFailure(Exception error) {
-            Logger.d(this, "onChanLoaderError()");
+            Logger.w(this, "onChanLoaderError()");
 
             // Ignore normal network errors, we only pause pins when there is absolutely no way
             // we'll ever need watching again: a 404.

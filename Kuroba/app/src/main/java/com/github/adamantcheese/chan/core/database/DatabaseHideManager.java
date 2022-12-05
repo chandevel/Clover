@@ -137,8 +137,7 @@ public class DatabaseHideManager {
 
             if (post.hasFilterParameters()) {
                 if (post.filterRemove && post.filterStub) {
-                    // wtf?
-                    Logger.w(this, "Post has both filterRemove and filterStub flags");
+                    Logger.wtf(this, "Post has both filterRemove and filterStub flags");
                     continue;
                 }
 

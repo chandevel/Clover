@@ -255,7 +255,7 @@ public class BitmapUtils {
         try (FileInputStream fis = new FileInputStream(file)) {
             return BitmapUtils.decode(fis, maxWidth, maxHeight);
         } catch (Throwable e) {
-            Logger.e(TAG, "", e);
+            Logger.w(TAG, "", e);
             return null;
         }
     }

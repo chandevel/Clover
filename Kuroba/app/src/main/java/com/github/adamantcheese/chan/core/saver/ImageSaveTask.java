@@ -191,13 +191,13 @@ public class ImageSaveTask {
                                 } else {
                                     if (fileManager.exists(finalSaveLocation)) {
                                         if (!fileManager.delete(finalSaveLocation)) {
-                                            Logger.e(this, "Could not delete destination file after error");
+                                            Logger.w(this, "Could not delete destination file after error");
                                         }
                                     }
                                 }
 
                                 if (!share && !response.delete()) {
-                                    Logger.e(this, "Could not delete cached file");
+                                    Logger.w(this, "Could not delete cached file");
                                 }
                                 onEnd();
                             }

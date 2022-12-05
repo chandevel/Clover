@@ -130,7 +130,7 @@ public class WebViewController
 
     public void setOptionalJavascriptAfterLoad(String javascript) {
         if (!javascript.startsWith("javascript:")) {
-            Logger.w(this, "Set javascript didn't start with prefix 'javascript:'");
+            Logger.d(this, "Set javascript didn't start with prefix 'javascript:'");
             return;
         }
         optionalJavascriptAfterLoad = javascript;
