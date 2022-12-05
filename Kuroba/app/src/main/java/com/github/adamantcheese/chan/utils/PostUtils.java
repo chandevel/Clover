@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.google.common.primitives.Bytes;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -83,7 +84,12 @@ public class PostUtils {
             @NonNull AlertDialog dialog,
             @Nullable TextView textView
     ) {
-        StringBuilder text = new StringBuilder(existingText == null ? "" : existingText);
+        StringBuilder text;
+        if (existingText instanceof StringBuilder) {
+            text = (StringBuilder) existingText;
+        } else {
+            text = new StringBuilder(existingText == null ? "" : existingText);
+        }
         text.append("Filename: ").append(image.filename).append(".").append(image.extension);
         if ("webm".equalsIgnoreCase(image.extension)) {
             // check webms for extra titles, async
@@ -108,18 +114,18 @@ public class PostUtils {
                 public void onResponse(@NonNull Call call, @NonNull Response response)
                         throws IOException {
                     int index = text.toString().indexOf(checking);
-                    String replaceText = ""; // clears out text if nothing found
+                    String replaceText = "\nNo metadata tiles detected.";
 
                     byte[] bytes = new byte[2048];
                     response.body().source().read(bytes);
                     response.close();
-                    for (int i = 0; i < bytes.length - 1; i++) {
-                        if (((bytes[i] & 0xFF) << 8 | bytes[i + 1] & 0xFF) == 0x7ba9) {
-                            byte len = (byte) (bytes[i + 2] ^ 0x80);
+                    int metaIndex = Bytes.indexOf(bytes, new byte[]{(byte) 0x7B, (byte) 0xA9});
+                    if (metaIndex != -1) {
+                        byte len = (byte) (bytes[metaIndex + 2] ^ 0x80);
+                        if (len > 0) {
                             // i is the position of the length bytes, which are 2 bytes
                             // 1 after that is the actual string start
-                            replaceText = "\nMetadata title: " + new String(bytes, i + 2 + 1, len);
-                            break;
+                            replaceText = "\nMetadata title: " + new String(bytes, metaIndex + 2 + 1, len);
                         }
                     }
                     text.replace(index, index + checking.length(), replaceText);
@@ -145,6 +151,10 @@ public class PostUtils {
             text.append("\nSpoilered");
         }
 
-        dialog.setMessage(text);
+        if (textView != null) {
+            textView.setText(text);
+        } else {
+            dialog.setMessage(text);
+        }
     }
 }

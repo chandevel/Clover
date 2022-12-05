@@ -1076,7 +1076,6 @@ public class ThreadPresenter
             text.append("\n\n");
             PostUtils.generatePostImageSummaryAndSetTextViewWithUpdates(image, text, dialog, infoText);
         }
-        infoText.setText(text);
 
         Set<String> added = new HashSet<>();
         List<CharSequence> keys = new ArrayList<>();

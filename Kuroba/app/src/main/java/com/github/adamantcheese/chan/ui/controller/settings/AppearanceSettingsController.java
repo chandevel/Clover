@@ -237,11 +237,11 @@ public class AppearanceSettingsController
                             + "not really compatible with shift-post formatting for now"
             )));
 
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+            post.add(new BooleanSettingView(this,
                     ChanSettings.accessibleInfo,
                     "Enable accessible post info",
                     "Enabling places info in the first post option menu"
-            )));
+            ));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFullDate,
