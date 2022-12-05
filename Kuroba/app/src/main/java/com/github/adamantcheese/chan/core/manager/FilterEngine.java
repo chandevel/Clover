@@ -26,6 +26,7 @@ import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.COU
 import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
@@ -56,7 +57,7 @@ public class FilterEngine {
 
     private final DatabaseFilterManager databaseFilterManager;
 
-    private final Map<String, Pattern> patternCache = new HashMap<>();
+    private final Map<String, Pattern> patternCache = Collections.synchronizedMap(new HashMap<>());
 
     public FilterEngine(DatabaseFilterManager databaseFilterManager) {
         this.databaseFilterManager = databaseFilterManager;
@@ -205,32 +206,28 @@ public class FilterEngine {
 
         Pattern pattern = null;
         Pattern negativePattern = null;
-        if (!forceCompile) {
-            synchronized (patternCache) {
+        synchronized (patternCache) {
+            if (!forceCompile) {
                 pattern = patternCache.get(filter.pattern);
                 negativePattern = patternCache.get(filter.negativePattern);
             }
-        }
 
-        if (pattern == null) {
             int extraFlags = type == FLAG_CODE ? Pattern.CASE_INSENSITIVE : 0;
-            pattern = compile(filter.pattern, extraFlags);
-            if (pattern != null) {
-                synchronized (patternCache) {
+
+            if (pattern == null) {
+                pattern = compile(filter.pattern, extraFlags);
+                if (pattern != null) {
                     patternCache.put(filter.pattern, pattern);
+                    Logger.d(this, "Resulting positive pattern: " + pattern.pattern());
                 }
-                Logger.d(this, "Resulting pattern: " + pattern.pattern());
             }
-        }
 
-        if (negativePattern == null) {
-            int extraFlags = type == FLAG_CODE ? Pattern.CASE_INSENSITIVE : 0;
-            negativePattern = compile(filter.negativePattern, extraFlags);
-            if (negativePattern != null) {
-                synchronized (patternCache) {
+            if (negativePattern == null) {
+                negativePattern = compile(filter.negativePattern, extraFlags);
+                if (negativePattern != null) {
                     patternCache.put(filter.negativePattern, negativePattern);
+                    Logger.d(this, "Resulting negative pattern: " + negativePattern.pattern());
                 }
-                Logger.d(this, "Resulting pattern: " + negativePattern.pattern());
             }
         }
 
@@ -254,6 +251,7 @@ public class FilterEngine {
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*");
 
     @AnyThread
+    @Nullable
     public Pattern compile(String rawPattern, int extraPatternFlags) {
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
