@@ -25,7 +25,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.util.Pair;
+import androidx.arch.core.util.Function;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.*;
@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
+import com.github.adamantcheese.chan.features.embedding.embedders.impl.ImgurEmbedder;
 import com.github.adamantcheese.chan.features.html_styling.base.*;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.*;
@@ -54,8 +55,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.*;
 
 import javax.inject.Inject;
@@ -148,11 +148,14 @@ public class PostThemedStyleActions {
             return new QuoteLinkable(theme, postNo);
         } else {
             ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
-            return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(theme,
-                    hrefUrl.toString().contains("post")
-                            ? new ResolveLink((ExternalSiteArchive) post.board.site, board, postNo)
-                            : threadLink
-            ) : new ThreadLinkable(theme, threadLink);
+            return post.board.site instanceof ExternalSiteArchive
+                    ? new ArchiveLinkable(theme,
+                    hrefUrl.toString().contains("post") ? new ResolveLink((ExternalSiteArchive) post.board.site,
+                            board,
+                            postNo
+                    ) : threadLink
+            )
+                    : new ThreadLinkable(theme, threadLink);
         }
     }
 
@@ -348,6 +351,10 @@ public class PostThemedStyleActions {
     );
     private static final String[] NO_THUMB_LINK_SUFFIXES =
             {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac", "wav"};
+    private static final Map<String, Function<HttpUrl, PostImage>> thumbnailGenerators =
+            new HashMap<String, Function<HttpUrl, PostImage>>() {{
+                put("imgur.com", ImgurEmbedder::generateThumbnailImage);
+            }};
 
     public static PostThemedStyleAction EMBED_IMAGES = new PostThemedStyleAction() {
         @NonNull
@@ -370,31 +377,29 @@ public class PostThemedStyleActions {
                     boolean noThumbnail = StringUtils.endsWithAny(linkable.value, NO_THUMB_LINK_SUFFIXES);
                     HttpUrl thumbnailUrl = noThumbnail ? INTERNAL_SPOILER_THUMB_URL : imageUrl;
 
-                    // TODO maybe generalize this?
-                    // imgur provides thumbnails, so grab those here; 160x160 to be similar to 4chan's 125x125
-                    if ("imgur.com".equals(thumbnailUrl.topPrivateDomain())) {
-                        Pair<String, String> split = StringUtils.splitExtension(thumbnailUrl);
-                        thumbnailUrl = HttpUrl.get(split.first + "t." + split.second);
-                    }
-
                     // ignore saucenao links, not actual images
                     if ("saucenao.com".equals(imageUrl.topPrivateDomain())) {
                         continue;
                     }
 
-                    PostImage inlinedImage = new PostImage.Builder()
-                            .serverFilename(matcher.group(1))
-                            .imageUrl(imageUrl)
-                            .thumbnailUrl(thumbnailUrl)
-                            .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
-                            .filename(matcher.group(1))
-                            .extension(matcher.group(2))
-                            .spoiler(thumbnailUrl == imageUrl)
-                            .isInlined()
-                            .size(-1)
-                            .build();
-
-                    post.images(Collections.singletonList(inlinedImage));
+                    PostImage generatedImage;
+                    Function<HttpUrl, PostImage> thumbnailGenerator =
+                            thumbnailGenerators.get(thumbnailUrl.topPrivateDomain());
+                    if (thumbnailGenerator != null) {
+                        generatedImage = thumbnailGenerator.apply(thumbnailUrl);
+                    } else {
+                        generatedImage = new PostImage.Builder()
+                                .serverFilename(matcher.group(1))
+                                .imageUrl(imageUrl)
+                                .thumbnailUrl(thumbnailUrl)
+                                .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
+                                .filename(matcher.group(1))
+                                .extension(matcher.group(2))
+                                .spoiler(thumbnailUrl == imageUrl)
+                                .isInlined()
+                                .build();
+                    }
+                    post.images(Collections.singletonList(generatedImage));
 
                     NetUtils.makeHeadersRequest(imageUrl, new NetUtilsClasses.ResponseResult<Headers>() {
                         @Override
@@ -403,7 +408,7 @@ public class PostThemedStyleActions {
                         @Override
                         public void onSuccess(Headers result) {
                             String size = result.get("Content-Length");
-                            inlinedImage.size = size == null ? 0 : Long.parseLong(size);
+                            generatedImage.size = size == null ? 0 : Long.parseLong(size);
                         }
                     });
                 }
