@@ -42,6 +42,6 @@ public class PastebinEmbedder
 
     @Override
     public NetUtilsClasses.Converter<EmbedResult, Document> getInternalConverter() {
-        return input -> new EmbedResult(input.title(), null, Collections.emptyList());
+        return input -> new EmbedResult(input.title().replace(" - Pastebin.com", ""), null, Collections.emptyList());
     }
 }
