@@ -8,6 +8,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+/**
+ * value is always just a bare Object
+ */
 public class PopupItemLinkable
         extends PostLinkable<Object> {
     private final int inlineQuoteColor;

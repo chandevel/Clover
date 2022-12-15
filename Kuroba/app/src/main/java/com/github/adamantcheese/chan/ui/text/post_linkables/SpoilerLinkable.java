@@ -14,6 +14,9 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Objects;
 
+/**
+ * value is the spoilered text
+ */
 public class SpoilerLinkable
         extends PostLinkable<CharSequence> {
 

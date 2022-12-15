@@ -13,7 +13,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import okhttp3.HttpUrl;
 
 /**
- * The Object can be a ThreadLink or a ResolveLink.
+ * value can be a ThreadLink or a ResolveLink
  */
 public class ArchiveLinkable
         extends PostLinkable<Object>

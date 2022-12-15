@@ -9,6 +9,9 @@ import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.Th
 import com.github.adamantcheese.chan.features.html_styling.base.StyleActionTextAdjuster;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is a ThreadLink
+ */
 public class ThreadLinkable
         extends PostLinkable<ThreadLink>
         implements StyleActionTextAdjuster {

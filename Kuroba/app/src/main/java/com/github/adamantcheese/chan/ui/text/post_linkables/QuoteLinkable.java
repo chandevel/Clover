@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is the post number of the quoting post
+ */
 public class QuoteLinkable
         extends PostLinkable<Integer>
         implements LineBackgroundSpan {

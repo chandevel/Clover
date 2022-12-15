@@ -7,6 +7,9 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.SearchLink;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is a SearchLink
+ */
 public class SearchLinkable
         extends PostLinkable<SearchLink> {
     public SearchLinkable(

@@ -6,6 +6,9 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is the board code
+ */
 public class BoardLinkable
         extends PostLinkable<String> {
     public BoardLinkable(

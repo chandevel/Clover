@@ -11,6 +11,9 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is the matching filter pattern
+ */
 public class FilterDebugLinkable
         extends PostLinkable<String> {
 

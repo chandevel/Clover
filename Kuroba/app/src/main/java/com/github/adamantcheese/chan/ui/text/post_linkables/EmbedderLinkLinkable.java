@@ -6,6 +6,9 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is a URL
+ */
 public class EmbedderLinkLinkable
         extends PostLinkable<String> {
     public EmbedderLinkLinkable(

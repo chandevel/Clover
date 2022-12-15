@@ -9,6 +9,9 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+/**
+ * value is always a bare Object
+ */
 public class RemovedLinkable
         extends PostLinkable<Object> {
     public RemovedLinkable(@NonNull Theme theme) {
