@@ -1,12 +1,9 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_ABOVE_ELSE;
-import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
-import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static com.github.adamantcheese.chan.utils.StringUtils.spanWithPriority;
 
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -24,11 +21,13 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Node;
 import org.nibor.autolink.*;
 
 import java.util.EnumSet;
+import java.util.Iterator;
 
 import okhttp3.HttpUrl;
 
@@ -42,17 +41,18 @@ public class CommonThemedStyleActions {
         protected CharSequence style(
                 @NonNull Node node, @Nullable CharSequence text, @NonNull Theme theme
         ) {
-            SpannableStringBuilder txt = text instanceof SpannableStringBuilder
-                    ? (SpannableStringBuilder) text
-                    : new SpannableStringBuilder(text);
-            Iterable<LinkSpan> links = LINK_EXTRACTOR.extractLinks(txt);
-            for (LinkSpan link : links) {
-                String linkText = TextUtils.substring(txt, link.getBeginIndex(), link.getEndIndex());
-                String scheme = linkText.substring(0, linkText.indexOf(':'));
-                if (!"http".equals(scheme) && !"https".equals(scheme))
-                    continue; // only autolink URLs, not any random URI
-                PostLinkable<?> pl = new ParserLinkLinkable(theme, linkText);
-
+            Iterator<LinkSpan> links = LINK_EXTRACTOR.extractLinks(text).iterator();
+            return StringUtils.replaceAll(text, () -> {
+                while (links.hasNext()) {
+                    LinkSpan link = links.next();
+                    String linkText = TextUtils.substring(text, link.getBeginIndex(), link.getEndIndex());
+                    String scheme = linkText.substring(0, linkText.indexOf(':'));
+                    if ("http".equals(scheme) || "https".equals(scheme)) return linkText;
+                }
+                return null;
+            }, source -> {
+                String linkText = (String) source;
+                StyleActionTextAdjuster pl = new ParserLinkLinkable(theme, linkText);
                 // double check however and set up "archive" links here in place of regular links
                 // this allows the person to pick any archive they want, regardless of if it actually is the link in question
                 try {
@@ -68,15 +68,8 @@ public class CommonThemedStyleActions {
                     }
                 } catch (Exception ignored) {}
 
-                txt.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), makeSpanOptions(RENDER_NORMAL));
-
-                if (pl instanceof StyleActionTextAdjuster) {
-                    StyleActionTextAdjuster adjuster = (StyleActionTextAdjuster) pl;
-                    txt.replace(txt.getSpanStart(adjuster), txt.getSpanEnd(adjuster), adjuster.adjust(linkText));
-                }
-            }
-
-            return txt;
+                return span(pl.adjust(linkText), pl);
+            }, false);
         }
     };
 
