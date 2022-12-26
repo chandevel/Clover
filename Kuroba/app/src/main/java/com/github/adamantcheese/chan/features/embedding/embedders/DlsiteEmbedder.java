@@ -13,6 +13,7 @@ import com.google.common.io.Files;
 
 import org.jsoup.internal.StringUtil;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,16 +22,14 @@ import okhttp3.HttpUrl;
 public class DlsiteEmbedder
         extends JsonEmbedder {
 
-    // This pattern matches either links in the form of https://dlsite.com/.../rj******, or rjcodes in the form of rj****** where * is a digit
+    // This pattern matches either links in the form of https://dlsite.com/.../[rj|vj][******|********], or dlsite codes in the form of [rj|vj][******|********] where * is a digit
     // Also matches weirder links like those that end in .html or with a query parameter like /?locale=en_US
     private final Pattern DLSITE_PATTERN =
-            Pattern.compile("https?://(?:www\\.)?dlsite\\.com.+?[rR][jJ](\\d{6})(?:\\.html)?(?:/\\?.*)?"
-                    + "|"
-                    + "(?<!/)[rR][jJ](\\d{6})(?![^ .,?!:;)\\]'\"\\-=+_/\\n])");
+            Pattern.compile("(?:(?:dlsite|www|http|maniax)[^>\\s]+)?([rvRV][jJ]\\d{6}(?:\\d{2})?)(?:\\.html)?(?:/\\?.*)?");
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, "dlsite", "RJ", "rj", "Rj", "rJ");
+        return StringUtils.containsAny(comment, "dlsite", "RJ", "rj", "Rj", "rJ", "VJ", "vj", "Vj", "vJ");
     }
 
     @Override
@@ -45,18 +44,14 @@ public class DlsiteEmbedder
 
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
-        // Since the match can either be a link or an rjcode, need to find the correct group
-        // Group 1 indicates a https://dlsite.com/.../rj****** match, group 2 indicates an rjcode match
-        // Neither matching shouldn't ever happen but just in case, it defaults to 000000 which does nothing
-        String rjcode = "000000";
-        if (matcher.group(1) == null) rjcode = matcher.group(2);
-        else if (matcher.group(2) == null) rjcode = matcher.group(1);
-        return HttpUrl.get("https://www.dlsite.com/maniax/product/info/ajax?product_id=RJ" + rjcode);
+        String dlsiteCode = "RJ000000";
+        if (matcher.group(1) != null) dlsiteCode = matcher.group(1).toUpperCase(Locale.ENGLISH);
+        return HttpUrl.get("https://www.dlsite.com/maniax/product/info/ajax?product_id=" + dlsiteCode);
     }
 
     /* There's a ton of info returned in the API, only what matters is listed
        Note that images are stored in buckets indicated by the first RJ code in the URL
-       It's the first 3 digits of the actual RJ code + 1 (basically rounded up to the next 1000)
+       It's the first 3 digits of the actual dlsite code + 1 (basically rounded up to the next 1000)
 
     {
         RJ****** {
