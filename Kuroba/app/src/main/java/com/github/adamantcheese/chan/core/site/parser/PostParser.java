@@ -17,9 +17,13 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
+import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.EMOJI;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.HEX_COLOR;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.LINK;
+import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.FILTER_DEBUG;
+import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.MAGNET_LINKS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
@@ -48,6 +52,7 @@ import com.github.adamantcheese.chan.ui.text.post_linkables.RemovedLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -90,7 +95,7 @@ public class PostParser {
     ) {
         // needed for "Apply to own posts" to work correctly
         builder.isSavedReply(postParserCallback.isSaved(builder.no));
-        parseInfoSpans(theme, builder);
+        parseInfoSpans(builder, theme, postParserCallback);
         builder.comment = new SpannableString(parseComment(builder, theme, postParserCallback));
 
         // process any removed posts, and remove any linkables/spans attached
@@ -114,7 +119,7 @@ public class PostParser {
      * @param theme   Theme to use for parsing
      * @param builder Post builder to get data from
      */
-    private void parseInfoSpans(Theme theme, Post.Builder builder) {
+    private void parseInfoSpans(Post.Builder builder, @NonNull Theme theme, PostParserCallback postParserCallback) {
         float detailsSizePx = sp(ChanSettings.fontSize.get() - 4);
         SpannableStringBuilder nameTripcodeIdCapcodeSpan = new SpannableStringBuilder();
 
@@ -167,7 +172,14 @@ public class PostParser {
         if (!TextUtils.isEmpty(builder.getSubject())) {
             // Do not set another color when the post is in stub mode, it sets text_color_secondary
             Object foregroundSpan = builder.filterStub ? null : new ForegroundColorSpanHashed(theme.subjectColorInt);
-            builder.spans(span(builder.getSubject(), foregroundSpan), nameTripcodeIdCapcodeSpan);
+            builder.spans(FILTER_DEBUG
+                    .with(theme,
+                            getFiltersCallback.getFilterList(),
+                            Collections.singletonList(SUBJECT),
+                            builder,
+                            postParserCallback
+                    )
+                    .style(null, span(builder.getSubject(), foregroundSpan)), nameTripcodeIdCapcodeSpan);
         } else {
             builder.spans(null, nameTripcodeIdCapcodeSpan);
         }
@@ -193,12 +205,13 @@ public class PostParser {
         }
 
         return new ChainStyleAction(PostThemedStyleActions.EMBED_IMAGES.with(theme, post, postParserCallback))
-                .chain(PostThemedStyleActions.FILTER_DEBUG.with(theme,
+                .chain(FILTER_DEBUG.with(theme,
                         getFiltersCallback.getFilterList(),
+                        Collections.singletonList(COMMENT),
                         post,
                         postParserCallback
                 ))
-                .chain(PostThemedStyleActions.MAGNET_LINKS.with(theme))
+                .chain(MAGNET_LINKS.with(theme))
                 .chain(new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, postParserCallback),
                         new ChainStyleAction(HEX_COLOR).chain(LINK.with(theme)).chain(EMOJI)
                 ))

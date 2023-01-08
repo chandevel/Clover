@@ -432,6 +432,7 @@ public class PostThemedStyleActions {
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
                 @NonNull Filters filters,
+                @NonNull List<FilterType> filterTypes,
                 @NonNull Post.Builder post,
                 @NonNull PostParser.PostParserCallback callback
         ) {
@@ -441,13 +442,15 @@ public class PostThemedStyleActions {
                 if (f.onlyOnOP && !post.op) continue;
                 if (f.applyToSaved && !post.isSavedReply) continue;
                 if (filterEngine.matchesBoard(f, post.board)) {
-                    MatchResult result = filterEngine.getMatchResult(f, FilterType.COMMENT, text, false);
-                    if (result != null) {
-                        builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
-                                result.start(),
-                                result.end(),
-                                makeSpanOptions(RENDER_NORMAL)
-                        );
+                    for (FilterType type : filterTypes) {
+                        MatchResult result = filterEngine.getMatchResult(f, type, text, false);
+                        if (result != null) {
+                            builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
+                                    result.start(),
+                                    result.end(),
+                                    makeSpanOptions(RENDER_NORMAL)
+                            );
+                        }
                     }
                 }
             }
