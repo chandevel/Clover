@@ -81,7 +81,8 @@ public class YoutubeEmbedder
             String id = null;
             String title = null;
             String duration = null;
-            String smallThumb = null;
+            String thumbnailDefaultUrl = null;
+            String thumbnailMaxResUrl = null;
             input.beginObject();
             while (input.hasNext()) {
                 if ("videoDetails".equals(input.nextName())) {
@@ -90,6 +91,7 @@ public class YoutubeEmbedder
                         switch (input.nextName()) {
                             case "videoId":
                                 id = input.nextString();
+                                thumbnailDefaultUrl = "https://img.youtube.com/vi/" + id + "/default.jpg";
                                 break;
                             case "title":
                                 title = URLDecoder.decode(input.nextString(), "UTF-8");
@@ -98,7 +100,7 @@ public class YoutubeEmbedder
                                 duration = prettyPrintDateUtilsElapsedTime(input.nextInt());
                                 break;
                             case "thumbnail":
-                                smallThumb = getLargestSmallThumb(input);
+                                thumbnailMaxResUrl = getLargestSmallThumb(input);
                                 break;
                             case "isLiveContent":
                                 if (input.nextBoolean()) {
@@ -125,14 +127,18 @@ public class YoutubeEmbedder
                 duration += urlString.contains("loop") ? "[LOOP]" : "";
             }
 
+            if (thumbnailMaxResUrl == null) { // should never happen but just in case
+                thumbnailMaxResUrl = thumbnailDefaultUrl;
+            }
+
             return new EmbedResult(
                     title,
                     duration,
                     new PostImage.Builder()
                             .serverFilename(id)
-                            .thumbnailUrl(HttpUrl.get(smallThumb))
-                            .imageUrl(HttpUrl.get("https://i.ytimg.com/vi/" + id + "/maxresdefault.jpg"))
-                            .filename("maxresdefault")
+                            .thumbnailUrl(HttpUrl.get(thumbnailDefaultUrl))
+                            .imageUrl(HttpUrl.get(thumbnailMaxResUrl))
+                            .filename(title)
                             .extension("jpg")
                             .isInlined()
                             .build()
