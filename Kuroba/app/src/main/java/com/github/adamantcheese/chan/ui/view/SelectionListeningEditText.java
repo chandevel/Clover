@@ -22,10 +22,17 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import android.content.ClipData;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.text.Spanned;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.view.inputmethod.EditorInfoCompat;
+import androidx.core.view.inputmethod.InputConnectionCompat;
 
 public class SelectionListeningEditText
         extends AppCompatEditText {
@@ -120,6 +127,34 @@ public class SelectionListeningEditText
 
     public void setPlainTextPaste(boolean plainTextPaste) {
         this.plainTextPaste = plainTextPaste;
+    }
+
+    @Nullable
+    @Override
+    public InputConnection onCreateInputConnection(
+            @NonNull EditorInfo editorInfo
+    ) {
+        final InputConnection ic = super.onCreateInputConnection(editorInfo);
+        EditorInfoCompat.setContentMimeTypes(editorInfo,
+                new String[]{"image/png", "image/jpeg", "image/gif", "image/webp", "video/webm"}
+        );
+
+        final InputConnectionCompat.OnCommitContentListener callback = (inputContentInfo, flags, opts) -> {
+            // read and display inputContentInfo asynchronously
+            if (Build.VERSION.SDK_INT >= 25
+                    && (flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+                try {
+                    inputContentInfo.requestPermission();
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+
+            imagePastedListener.onImagePasted(inputContentInfo.getContentUri());
+            return true;
+        };
+
+        return InputConnectionCompat.createWrapper(ic, editorInfo, callback);
     }
 
     public interface SelectionChangedListener {
