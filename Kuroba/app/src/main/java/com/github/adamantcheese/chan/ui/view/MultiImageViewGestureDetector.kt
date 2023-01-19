@@ -19,6 +19,16 @@ class MultiImageViewGestureDetector(
         private val callback: MultiImageViewGestureDetectorCallback
 ) : SimpleOnGestureListener() {
 
+    private var startingImageViewportTouchSide = CustomScaleImageView.ImageViewportTouchSide(0)
+
+    override fun onDown(e: MotionEvent?): Boolean {
+        val activeView = callback.getActiveView()
+        if (activeView is CustomScaleImageView) {
+            startingImageViewportTouchSide = activeView.imageViewportTouchSide
+        }
+        return super.onDown(e)
+    }
+
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val activeView = callback.getActiveView()
         if (activeView is StyledPlayerView && !ChanSettings.neverShowWebmControls.get()) {
@@ -94,7 +104,8 @@ class MultiImageViewGestureDetector(
         // big image is visible and the viewport is touching image bottom then use
         // close-to-swipe gesture
         val activeView = callback.getActiveView()
-        if (activeView !is CustomScaleImageView || activeView.imageViewportTouchSide.isTouchingBottom) {
+        if (activeView !is CustomScaleImageView
+                || (startingImageViewportTouchSide.isTouchingBottom && activeView.imageViewportTouchSide.isTouchingBottom)) {
             callback.onSwipeToCloseImage()
             return true
         }
@@ -112,20 +123,15 @@ class MultiImageViewGestureDetector(
                 // We are not zoomed in. This is the default state when we open an image.
                 // We can use swipe-to-save image gesture.
                 swipeToSaveOrClose()
-
                 return true
-            } else if (
-                    activeView.scale > activeView.minScale &&
-                    (imageViewportTouchSide.isTouchingBottom || imageViewportTouchSide.isTouchingTop)
-            ) {
-                // We are zoomed in and the viewport is touching either top or bottom of an
-                // image. We don't want to use swipe-to-save image gesture, we want to use
+            } else if (activeView.scale > activeView.minScale &&
+                    (startingImageViewportTouchSide.isTouchingTop && imageViewportTouchSide.isTouchingTop)) {
+                // We are zoomed in and the viewport is touching the top of an image.
+                // We don't want to use swipe-to-save image gesture, we want to use the
                 // swipe-to-close gesture instead.
                 callback.onSwipeToCloseImage()
                 return true
             } else {
-                // We are zoomed in and the viewport is not touching neither top nor bottom of
-                // an image we want to pass this event to other views.
                 return false
             }
         } else {
