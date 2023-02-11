@@ -176,6 +176,9 @@ public interface ImageLoadable {
 
     void setImageLoadableData(ImageLoadableData data);
 
+    /**
+     * This class contains information related to loading images, easier than having every class mange this data
+     */
     class ImageLoadableData {
         private HttpUrl loadedUrl = null;
         private Call call = null;

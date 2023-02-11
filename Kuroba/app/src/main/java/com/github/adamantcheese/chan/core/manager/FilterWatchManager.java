@@ -122,28 +122,61 @@ public class FilterWatchManager
         Set<Board> boards = new HashSet<>();
         for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved()) {
             for (Board b : siteBoard.boards) {
-                for (Filter f : filterEngine.getEnabledWatchFilters()) {
-                    if (filterEngine.matchesBoard(f, b)) {
-                        boards.add(b);
-                    }
+                if (boardMatchAnyWatchFilters(b)) {
+                    boards.add(b);
                 }
             }
         }
         numBoardsChecked.set(boards.size());
 
         for (Board b : boards) {
-            CatalogLoader backgroundLoader = new CatalogLoader();
-            ChanThreadLoader catalogLoader = new ChanThreadLoader(Loadable.forCatalog(b));
-            catalogLoader.addListener(backgroundLoader);
-            filterLoaders.put(catalogLoader, backgroundLoader);
+            addCatalogLoader(Loadable.forCatalog(b), false, false);
+        }
+    }
+
+    public void checkExternalThread(Loadable loadable) {
+        if (!processing) {
+            WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
+            processing = true;
+
+            if (boardMatchAnyWatchFilters(loadable.board)) {
+                numBoardsChecked.incrementAndGet();
+                addCatalogLoader(loadable, true, true);
+            }
+        }
+    }
+
+    private boolean boardMatchAnyWatchFilters(Board b) {
+        for (Filter f : filterEngine.getEnabledWatchFilters()) {
+            if (filterEngine.matchesBoard(f, b)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addCatalogLoader(Loadable loadable, boolean onlyCheckOp, boolean startImmediately) {
+        CatalogLoader backgroundLoader = new CatalogLoader(onlyCheckOp);
+        ChanThreadLoader catalogLoader = new ChanThreadLoader(loadable);
+        catalogLoader.addListener(backgroundLoader);
+        filterLoaders.put(catalogLoader, backgroundLoader);
+        if (startImmediately) {
+            catalogLoader.requestFreshData();
         }
     }
 
     private class CatalogLoader
             implements NetUtilsClasses.ResponseResult<ChanThread> {
+        private final boolean onlyCheckOp;
+
+        private CatalogLoader(boolean onlyCheckOp) {
+            this.onlyCheckOp = onlyCheckOp;
+        }
+
         @Override
         public void onSuccess(ChanThread result) {
-            for (Post p : result.getPosts()) {
+            List<Post> toCheck = onlyCheckOp ? Collections.singletonList(result.getOp()) : result.getPosts();
+            for (Post p : toCheck) {
                 CatalogPost catalogPost = new CatalogPost(p);
                 //make pins for the necessary stuff
                 if (p.filterWatch && !ignoredPosts.contains(catalogPost)) {
