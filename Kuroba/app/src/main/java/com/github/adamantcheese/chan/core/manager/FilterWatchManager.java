@@ -37,6 +37,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FilterWatchManager
@@ -54,7 +55,7 @@ public class FilterWatchManager
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private final AtomicInteger numBoardsChecked = new AtomicInteger();
     private final Set<CatalogPost> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
-    private boolean processing = false;
+    private final AtomicBoolean processing = new AtomicBoolean(false);
 
     private static final Type IGNORED_TYPE = new TypeToken<Set<CatalogPost>>() {}.getType();
     private static final File CACHED_IGNORES = new File(getCacheDir(), "filter_watch_ignores.json");
@@ -92,11 +93,13 @@ public class FilterWatchManager
 
     @Override
     public void onWake() {
-        if (!processing) {
+        if (!processing.get()) {
+            processing.set(true);
             WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
-            processing = true;
             populateFilterLoaders();
-            if (!filterLoaders.keySet().isEmpty()) {
+            if (filterLoaders.keySet().isEmpty()) {
+                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
+            } else {
                 Logger.i(
                         this,
                         "Processing "
@@ -107,8 +110,6 @@ public class FilterWatchManager
                 for (ChanThreadLoader loader : filterLoaders.keySet()) {
                     loader.requestFreshData();
                 }
-            } else {
-                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
             }
         }
     }
@@ -122,9 +123,7 @@ public class FilterWatchManager
         Set<Board> boards = new HashSet<>();
         for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved()) {
             for (Board b : siteBoard.boards) {
-                if (boardMatchAnyWatchFilters(b)) {
-                    boards.add(b);
-                }
+                if (boardMatchAnyWatchFilters(b)) boards.add(b);
             }
         }
         numBoardsChecked.set(boards.size());
@@ -135,9 +134,9 @@ public class FilterWatchManager
     }
 
     public void checkExternalThread(Loadable loadable) {
-        if (!processing) {
+        if (!processing.get()) {
+            processing.set(true);
             WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
-            processing = true;
 
             if (boardMatchAnyWatchFilters(loadable.board)) {
                 numBoardsChecked.incrementAndGet();
@@ -160,9 +159,7 @@ public class FilterWatchManager
         ChanThreadLoader catalogLoader = new ChanThreadLoader(loadable);
         catalogLoader.addListener(backgroundLoader);
         filterLoaders.put(catalogLoader, backgroundLoader);
-        if (startImmediately) {
-            catalogLoader.requestFreshData();
-        }
+        if (startImmediately) catalogLoader.requestFreshData();
     }
 
     private class CatalogLoader
@@ -200,21 +197,17 @@ public class FilterWatchManager
         }
 
         private void checkComplete() {
-            if (numBoardsChecked.decrementAndGet() == 0) {
-                ignoredPosts.retainAll(lastCheckedPosts);
-                try (FileWriter writer = new FileWriter(CACHED_IGNORES)) {
-                    AppModule.gson.toJson(ignoredPosts, IGNORED_TYPE, writer);
-                } catch (Exception e) {
-                    CACHED_IGNORES.delete();
-                }
-                lastCheckedPosts.clear();
-                processing = false;
-                Logger.i(
-                        this,
-                        "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale()
-                );
-                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
+            if (numBoardsChecked.decrementAndGet() != 0) return;
+            ignoredPosts.retainAll(lastCheckedPosts);
+            try (FileWriter writer = new FileWriter(CACHED_IGNORES)) {
+                AppModule.gson.toJson(ignoredPosts, IGNORED_TYPE, writer);
+            } catch (Exception e) {
+                CACHED_IGNORES.delete();
             }
+            lastCheckedPosts.clear();
+            Logger.i(this, "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale());
+            WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
+            processing.set(false);
         }
     }
 
