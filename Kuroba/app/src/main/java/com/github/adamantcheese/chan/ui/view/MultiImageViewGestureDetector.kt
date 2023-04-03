@@ -119,20 +119,20 @@ class MultiImageViewGestureDetector(
             val imageViewportTouchSide = activeView.imageViewportTouchSide
 
             // Current image is big image
-            if (activeView.scale == activeView.minScale) {
+            return if (activeView.scale == activeView.minScale) {
                 // We are not zoomed in. This is the default state when we open an image.
                 // We can use swipe-to-save image gesture.
                 swipeToSaveOrClose()
-                return true
+                true
             } else if (activeView.scale > activeView.minScale &&
                     (startingImageViewportTouchSide.isTouchingTop && imageViewportTouchSide.isTouchingTop)) {
                 // We are zoomed in and the viewport is touching the top of an image.
                 // We don't want to use swipe-to-save image gesture, we want to use the
                 // swipe-to-close gesture instead.
                 callback.onSwipeToCloseImage()
-                return true
+                true
             } else {
-                return false
+                false
             }
         } else {
             if (activeView is ImageView && activeView !is GifImageView) {

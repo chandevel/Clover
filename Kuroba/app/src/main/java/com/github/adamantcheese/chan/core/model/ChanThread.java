@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 

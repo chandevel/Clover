@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.features.embedding.embedders.impl;
 
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.STRING_CONVERTER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;

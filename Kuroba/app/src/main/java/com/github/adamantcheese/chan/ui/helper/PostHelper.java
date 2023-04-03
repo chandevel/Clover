@@ -16,19 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -394,6 +394,7 @@ public class ReplyLayout
         setLayoutParams(params);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean insertQuote() {
         int selectionStart = Math.min(comment.getSelectionEnd(), comment.getSelectionStart());
         int selectionEnd = Math.max(comment.getSelectionEnd(), comment.getSelectionStart());
@@ -409,6 +410,7 @@ public class ReplyLayout
         return true;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean insertTags(String before, String after) {
         int selectionStart = comment.getSelectionStart();
         int selectLen = comment.getSelectionEnd() - comment.getSelectionStart();

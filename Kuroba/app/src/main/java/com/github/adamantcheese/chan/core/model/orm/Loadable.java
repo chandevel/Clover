@@ -113,6 +113,7 @@ public class Loadable
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Loadable(@SuppressWarnings("unused") boolean forDummyLoadable) {}
 
     public static Loadable importLoadable(

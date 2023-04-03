@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.model.export;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 

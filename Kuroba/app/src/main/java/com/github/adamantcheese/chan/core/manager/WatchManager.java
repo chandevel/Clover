@@ -460,10 +460,6 @@ public class WatchManager
         DatabaseUtils.runTaskAsync(databasePinManager.updatePins(clonedPins));
     }
 
-    private boolean isTimerEnabled() {
-        return !getWatchingPins().isEmpty();
-    }
-
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
     private void updateState() {
@@ -487,7 +483,7 @@ public class WatchManager
 
         // Update notification state
         // Do not start the service when all pins are stopped or archived/404ed
-        if (updatePinWatchers() && isTimerEnabled() && ChanSettings.watchBackground.get()) {
+        if (updatePinWatchers() && !getWatchingPins().isEmpty() && ChanSettings.watchBackground.get()) {
             // To make sure that we won't blow up when starting a service while the app is in
             // background we have to use this method which will call context.startForegroundService()
             // that allows an app to start a service (which must then call StartForeground in it's

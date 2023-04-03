@@ -347,6 +347,7 @@ public class DrawerController
         drawerLayout.post(() -> drawerLayout.closeDrawers());
     }
 
+    @SuppressWarnings("SameReturnValue")
     public boolean onHeaderClicked(HeaderAction headerAction) {
         if (pinMode) {
             onHeaderClickedInternal(headerAction == CLEAR_ALL || !ChanSettings.watchEnabled.get());

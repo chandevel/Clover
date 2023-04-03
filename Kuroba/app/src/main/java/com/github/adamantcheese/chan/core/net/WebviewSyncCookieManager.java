@@ -1,19 +1,13 @@
 package com.github.adamantcheese.chan.core.net;
 
-import android.content.Context;
 import android.webkit.CookieManager;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
-import com.github.adamantcheese.chan.utils.WebViewClientCompat;
 
 import java.util.*;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.*;
 

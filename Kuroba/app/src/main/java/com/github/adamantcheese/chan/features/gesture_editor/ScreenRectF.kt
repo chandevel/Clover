@@ -1,3 +1,5 @@
+@file:Suppress("unused", "unused", "unused")
+
 package com.github.adamantcheese.chan.features.gesture_editor
 
 import android.graphics.PointF

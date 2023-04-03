@@ -300,6 +300,8 @@ public class Board
      *
      * @return copy of this board.
      */
+    @NonNull
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Board clone() {
         Board b = new Board();
         b.id = id;

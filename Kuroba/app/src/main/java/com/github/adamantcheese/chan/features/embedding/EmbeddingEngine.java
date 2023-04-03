@@ -347,6 +347,8 @@ public class EmbeddingEngine
             @NonNull String URL,
             final Bitmap icon
     ) {
+        // commentCopy is safe to synchronize on
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (commentCopy) {
             StringUtils.replaceAll(commentCopy, () -> URL, (source) -> {
                 CharSequence replacement = StringUtils.prependIcon(getAppContext(),

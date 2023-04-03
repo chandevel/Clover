@@ -27,7 +27,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.Embeddable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
-import com.google.common.collect.ObjectArrays;
 import com.google.common.primitives.Ints;
 import com.vdurmont.emoji.EmojiParser;
 
