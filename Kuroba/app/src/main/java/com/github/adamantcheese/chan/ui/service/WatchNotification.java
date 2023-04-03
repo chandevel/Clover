@@ -128,7 +128,6 @@ public class WatchNotification
                 new NotificationCompat.Builder(this, NOTIFICATION_ID_STR)
                         .setSmallIcon(R.drawable.ic_stat_notify)
                         .setPriority(NotificationCompat.PRIORITY_MIN)
-                        .setOngoing(true)
                         .build()
         );
 
@@ -326,7 +325,7 @@ public class WatchNotification
     ) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
-        builder.setContentTitle(title).setContentText(TextUtils.join(", ", expandedLines)).setOngoing(true);
+        builder.setContentTitle(title).setContentText(TextUtils.join(", ", expandedLines));
 
         //setup launch action, add pin if there's only one thread watching
         Intent intent = new Intent(this, StartActivity.class);
