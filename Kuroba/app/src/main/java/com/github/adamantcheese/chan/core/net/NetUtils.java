@@ -7,6 +7,7 @@ import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.lang.Runtime.getRuntime;
 import static okhttp3.Protocol.HTTP_1_1;
+import static okhttp3.Protocol.HTTP_2;
 
 import android.graphics.Bitmap;
 import android.util.JsonReader;

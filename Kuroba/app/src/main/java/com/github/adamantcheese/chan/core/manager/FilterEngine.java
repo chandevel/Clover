@@ -246,7 +246,7 @@ public class FilterEngine {
     }
 
     private static final Pattern isRegexPattern = Pattern.compile("^/(.*)/([mi]*)?$");
-    private static final Pattern filterFilthyPattern = Pattern.compile("([.^$*+?()\\]\\[{}\\\\|-])");
+    private static final Pattern filterFilthyPattern = Pattern.compile("([.^$*+?()\\]\\[{}\\\\|\\-])");
     // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*");
 
