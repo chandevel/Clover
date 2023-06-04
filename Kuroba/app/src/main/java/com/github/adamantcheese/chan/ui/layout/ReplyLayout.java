@@ -41,6 +41,7 @@ import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
@@ -1154,6 +1155,11 @@ public class ReplyLayout
         validCaptchasCount.setText(String.valueOf(validCaptchaCount));
     }
 
+    @Override
+    public void openController(Controller controller) {
+        callback.openController(controller);
+    }
+
     public interface ReplyLayoutCallback {
         void highlightPostNo(int no);
 
@@ -1174,5 +1180,7 @@ public class ReplyLayout
         void setDrawerEnabled(boolean enabled);
 
         void setSlideEnabled(boolean enabled);
+
+        void openController(Controller controller);
     }
 }

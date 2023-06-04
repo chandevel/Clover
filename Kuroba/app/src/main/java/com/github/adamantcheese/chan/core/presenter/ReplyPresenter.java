@@ -24,7 +24,6 @@ import static com.github.adamantcheese.chan.features.html_styling.impl.PostTheme
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
@@ -42,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -60,6 +60,7 @@ import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
+import com.github.adamantcheese.chan.ui.controller.WebViewController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.*;
@@ -72,6 +73,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 public class ReplyPresenter
         implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteApi.PostListener {
@@ -316,7 +318,10 @@ public class ReplyPresenter
                     replaceSpan(error, s, new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull View widget) {
-                            openLinkInBrowser(widget.getContext(), url);
+                            callback.openController(new WebViewController(context,
+                                    "Link from posting error",
+                                    HttpUrl.get(url)
+                            ));
                         }
 
                         @Override
@@ -692,5 +697,7 @@ public class ReplyPresenter
         void enableImageAttach(boolean canAttach);
 
         void enableName(boolean canName);
+
+        void openController(Controller controller);
     }
 }

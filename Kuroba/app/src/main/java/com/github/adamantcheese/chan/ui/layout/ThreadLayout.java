@@ -748,6 +748,11 @@ public class ThreadLayout
         callback.setSlideEnabled(enabled);
     }
 
+    @Override
+    public void openController(Controller controller) {
+        callback.presentController(controller);
+    }
+
     public interface ThreadLayoutCallback {
         void showThread(Loadable threadLoadable);
 

@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.*;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
@@ -748,7 +749,8 @@ public class ThreadListLayout
             float bitmapXCenter = bitmapWrapper.bitmap.getScaledWidth(c) * bitmapWrapper.centerX;
             float bitmapYCenter = bitmapWrapper.bitmap.getScaledHeight(c) * bitmapWrapper.centerY;
             // if in list mode, move it over slightly to align with the thumbnail
-            float thumbnailAdjustment = (postViewMode == LIST ? dp(parent.getContext(), ChanSettings.fontSize.get() - 7) : 0);
+            float thumbnailAdjustment =
+                    (postViewMode == LIST ? dp(parent.getContext(), ChanSettings.fontSize.get() - 7) : 0);
 
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
@@ -796,6 +798,11 @@ public class ThreadListLayout
         threadListLayoutCallback.setSlideEnabled(enabled);
     }
 
+    @Override
+    public void openController(Controller controller) {
+        threadListLayoutCallback.openController(controller);
+    }
+
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 
@@ -822,5 +829,7 @@ public class ThreadListLayout
         void setDrawerEnabled(boolean enabled);
 
         void setSlideEnabled(boolean enabled);
+
+        void openController(Controller controller);
     }
 }
