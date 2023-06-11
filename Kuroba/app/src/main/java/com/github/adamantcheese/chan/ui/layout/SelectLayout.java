@@ -27,7 +27,7 @@ import android.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 
 import java.util.*;
 

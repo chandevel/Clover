@@ -46,10 +46,10 @@ import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions;
-import com.github.adamantcheese.chan.ui.text.*;
-import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
-import com.github.adamantcheese.chan.ui.text.post_linkables.RemovedLinkable;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.QuoteLinkable;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.RemovedLinkable;
+import com.github.adamantcheese.chan.ui.text.spans.*;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.Collections;

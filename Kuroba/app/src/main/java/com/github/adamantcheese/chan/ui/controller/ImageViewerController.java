@@ -56,10 +56,10 @@ import com.github.adamantcheese.chan.core.saver.ImageSaver.DefaultImageSaveResul
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.ImageViewerAdapter;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.*;
-import com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog;
+import com.github.adamantcheese.chan.ui.widget.*;
 import com.github.adamantcheese.chan.utils.*;
 
 import java.io.File;
@@ -99,7 +99,7 @@ public class ImageViewerController
     private final Toolbar toolbar;
     private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
-    private LoadingBar loadingBar;
+    private MulticolorBarView loadingBar;
 
     private boolean isInImmersiveMode = false;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -162,6 +162,11 @@ public class ImageViewerController
         pager = view.findViewById(R.id.pager);
         pager.addOnPageChangeListener(presenter);
         loadingBar = view.findViewById(R.id.loading_bar);
+        if (isAprilFoolsDay() || isItRainbowTime()) {
+            loadingBar.setColors(AnimationUtils.RAINBOW_COLORS);
+        } else {
+            loadingBar.setColors(new int[]{getAttrColor(context, R.attr.colorAccent)});
+        }
 
         showVolumeMenuItem(false, true);
 

@@ -16,10 +16,10 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleActionTextAdjuster;
 import com.github.adamantcheese.chan.features.html_styling.base.ThemedStyleAction;
-import com.github.adamantcheese.chan.ui.text.CodeBackgroundSpan;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.text.post_linkables.*;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.text.spans.CodeBackgroundSpan;
+import com.github.adamantcheese.chan.ui.text.spans.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 

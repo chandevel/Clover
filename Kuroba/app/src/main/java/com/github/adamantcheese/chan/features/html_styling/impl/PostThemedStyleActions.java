@@ -45,10 +45,10 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.embedding.embedders.impl.ImgurEmbedder;
 import com.github.adamantcheese.chan.features.html_styling.base.*;
-import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
-import com.github.adamantcheese.chan.ui.text.post_linkables.*;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.text.spans.CustomTypefaceSpan;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
+import com.github.adamantcheese.chan.features.theme.Theme;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 

@@ -16,7 +16,7 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.features.embedding.embedders.base.VoidEmbedder;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;

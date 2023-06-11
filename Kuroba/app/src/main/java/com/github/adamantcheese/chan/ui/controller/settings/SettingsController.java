@@ -38,7 +38,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.controller.ToolbarNavigationController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.*;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 

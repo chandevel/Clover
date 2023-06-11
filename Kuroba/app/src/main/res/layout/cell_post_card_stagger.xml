@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
+            <com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 app:shapeAppearanceOverlay="@style/roundedImageViewCorners"
                 app:strokeColor="@color/transparent" />
 
-            <com.github.adamantcheese.chan.ui.view.MulticolorBarView
+            <com.github.adamantcheese.chan.ui.widget.MulticolorBarView
                 android:id="@+id/filter_match_color"
                 android:layout_width="match_parent"
                 android:layout_height="5dp"

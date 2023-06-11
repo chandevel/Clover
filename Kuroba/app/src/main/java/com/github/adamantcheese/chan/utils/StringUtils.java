@@ -13,9 +13,9 @@ import androidx.annotation.*;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
-import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
-import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.text.spans.CenteringImageSpan;
+import com.github.adamantcheese.chan.ui.text.spans.SearchHighlightSpan;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.google.common.io.Files;
 
 import java.io.*;

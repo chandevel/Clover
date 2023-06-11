@@ -8,8 +8,8 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.text.spans.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 public class DvachPostParser
         extends VichanPostParser {

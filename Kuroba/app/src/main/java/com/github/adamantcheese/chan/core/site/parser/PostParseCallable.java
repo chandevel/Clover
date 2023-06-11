@@ -22,7 +22,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.PostParserCallback;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 import java.util.List;
 import java.util.Set;

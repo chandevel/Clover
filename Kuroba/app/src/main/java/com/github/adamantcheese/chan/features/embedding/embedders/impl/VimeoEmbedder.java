@@ -13,7 +13,7 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.features.embedding.embedders.base.JsonEmbedder;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.regex.Matcher;

@@ -52,7 +52,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.Balloon;
 
@@ -453,6 +453,12 @@ public class AndroidUtils {
         if (PersistableChanState.noFunAllowed.get()) return false;
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
+    }
+
+    public static boolean isItRainbowTime() {
+        if (PersistableChanState.noFunAllowed.get()) return false;
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.MONTH) == Calendar.JUNE;
     }
 
     /**

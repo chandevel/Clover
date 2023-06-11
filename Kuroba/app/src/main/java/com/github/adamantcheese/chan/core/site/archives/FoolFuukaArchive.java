@@ -21,7 +21,7 @@ import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanComment
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.google.common.io.Files;
 
 import org.jsoup.internal.StringUtil;

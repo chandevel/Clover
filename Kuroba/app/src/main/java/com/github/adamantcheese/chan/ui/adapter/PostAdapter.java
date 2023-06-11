@@ -40,8 +40,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
-import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.QuoteLinkable;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 

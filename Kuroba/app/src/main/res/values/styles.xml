@@ -619,10 +619,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="spanWidth" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="LoadingBar">
-        <attr name="color" format="color" />
-    </declare-styleable>
-
     <declare-styleable name="Toolbar">
         <attr name="menuDrawable" format="reference" />
     </declare-styleable>

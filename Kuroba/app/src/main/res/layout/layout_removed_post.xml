@@ -8,7 +8,7 @@
     android:orientation="horizontal"
     android:padding="4dp">
 
-    <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
+    <com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView
         android:id="@+id/post_image"
         app:strokeColor="@color/transparent"
         android:layout_width="@dimen/cell_post_thumbnail_size"

@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.features.html_styling.base;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 import org.jsoup.nodes.Node;
 

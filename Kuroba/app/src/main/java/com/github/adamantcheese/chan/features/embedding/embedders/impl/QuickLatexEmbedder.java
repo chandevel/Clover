@@ -21,8 +21,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.features.embedding.embedders.base.VoidEmbedder;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.features.theme.Theme;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 

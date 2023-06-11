@@ -114,15 +114,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </activity>
 
         <service
-            android:name=".ui.service.WatchNotification"
+            android:name=".features.notifications.WatchNotification"
             android:exported="false" />
 
         <service
-            android:name=".ui.service.SavingNotification"
+            android:name=".features.notifications.SavingNotification"
             android:exported="false" />
 
         <service
-            android:name=".ui.service.LastPageNotification"
+            android:name=".features.notifications.LastPageNotification"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

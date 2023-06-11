@@ -46,9 +46,12 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.view.*;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
+import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.ui.widget.MulticolorBarView;
+import com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -95,6 +98,7 @@ public class CardPostCell
         replies = findViewById(R.id.replies);
         options = findViewById(R.id.options);
         filterMatchColor = findViewById(R.id.filter_match_color);
+        filterMatchColor.setProgress(1.0f);
         icons = findViewById(R.id.icons);
 
         setCompact(false);

@@ -11,7 +11,7 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

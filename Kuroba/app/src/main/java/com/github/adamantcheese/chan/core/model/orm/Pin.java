@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.model.orm;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.ui.theme.Highlightable;
+import com.github.adamantcheese.chan.features.theme.Highlightable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 

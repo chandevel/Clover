@@ -37,8 +37,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapR
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.features.theme.Theme;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.*;

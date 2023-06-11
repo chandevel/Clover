@@ -40,8 +40,9 @@ import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.features.html_styling.StyledHtml;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
-import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.spans.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.view.*;
+import com.github.adamantcheese.chan.ui.widget.ColorPickerView;
 
 import java.util.*;
 import java.util.regex.Pattern;

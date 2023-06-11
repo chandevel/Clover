@@ -61,12 +61,16 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.view.*;
+import com.github.adamantcheese.chan.ui.text.PostViewMovementMethod;
+import com.github.adamantcheese.chan.ui.text.spans.AbsoluteSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.spans.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
+import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.ui.widget.MulticolorBarView;
+import com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.DPSpacingItemDecoration;
 
 import java.util.*;
@@ -121,6 +125,7 @@ public class PostCell
         replies = findViewById(R.id.replies);
         ImageView options = findViewById(R.id.options);
         filterMatchColor = findViewById(R.id.filter_match_color);
+        filterMatchColor.setProgress(1.0f);
 
         headerWrapper = findViewById(R.id.header_wrapper);
         bodyWrapper = findViewById(R.id.body_wrapper);

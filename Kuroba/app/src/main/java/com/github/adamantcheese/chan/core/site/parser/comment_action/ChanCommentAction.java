@@ -30,7 +30,7 @@ import androidx.annotation.CallSuper;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 /**
  * This has specific rules for chan boards (see the PostThemedStyleAction classes) that make display a bit nicer or functional,

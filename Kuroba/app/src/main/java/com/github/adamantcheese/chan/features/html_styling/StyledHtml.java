@@ -11,7 +11,7 @@ import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Node;

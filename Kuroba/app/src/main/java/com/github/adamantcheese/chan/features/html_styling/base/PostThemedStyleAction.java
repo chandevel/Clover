@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 import org.jsoup.nodes.Node;
 

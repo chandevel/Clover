@@ -13,7 +13,7 @@ import androidx.core.graphics.ColorUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
-import com.github.adamantcheese.chan.ui.text.*;
+import com.github.adamantcheese.chan.ui.text.spans.*;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 

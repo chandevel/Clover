@@ -22,7 +22,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme;
 
 public class VichanCommentAction
         extends ChanCommentAction {

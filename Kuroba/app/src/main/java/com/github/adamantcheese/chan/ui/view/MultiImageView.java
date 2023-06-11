@@ -46,6 +46,8 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.widget.CustomScaleImageView;
+import com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.*;
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;

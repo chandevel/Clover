@@ -33,7 +33,7 @@ import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.SettingNotificationManager;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
-import com.github.adamantcheese.chan.ui.service.*;
+import com.github.adamantcheese.chan.features.notifications.*;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.*;
 

@@ -32,12 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:visibility="invisible"
         tools:visibility="visible" />
 
-    <com.github.adamantcheese.chan.ui.view.LoadingBar
+    <com.github.adamantcheese.chan.ui.widget.MulticolorBarView
         android:id="@+id/loading_bar"
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:visibility="gone"
-        app:color="?colorAccent"
         tools:visibility="visible" />
 
 </FrameLayout>

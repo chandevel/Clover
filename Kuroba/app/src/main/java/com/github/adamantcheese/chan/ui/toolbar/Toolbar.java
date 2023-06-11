@@ -35,7 +35,7 @@ import android.widget.LinearLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
+import com.github.adamantcheese.chan.ui.widget.ArrowMenuDrawable;
 
 import java.util.ArrayList;
 import java.util.List;

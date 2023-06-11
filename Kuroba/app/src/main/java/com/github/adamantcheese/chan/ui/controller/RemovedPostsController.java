@@ -17,7 +17,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
-import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
+import com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.*;

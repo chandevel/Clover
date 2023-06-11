@@ -5,6 +5,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.ui.widget.CustomScaleImageView
 import com.github.adamantcheese.chan.utils.AndroidUtils.dp
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import pl.droidsonroids.gif.GifDrawable
@@ -101,7 +102,7 @@ class MultiImageViewGestureDetector(
 
     private fun onSwipedTop(): Boolean {
         // If either any view, other than the big image view, is visible (thumbnail, gif or video) OR
-        // big image is visible and the viewport is touching image bottom then use
+        // big image is visible and the viewport is touching image bottom from start to end then use
         // close-to-swipe gesture
         val activeView = callback.getActiveView()
         if (activeView !is CustomScaleImageView
@@ -126,7 +127,7 @@ class MultiImageViewGestureDetector(
                 true
             } else if (activeView.scale > activeView.minScale &&
                     (startingImageViewportTouchSide.isTouchingTop && imageViewportTouchSide.isTouchingTop)) {
-                // We are zoomed in and the viewport is touching the top of an image.
+                // We are zoomed in and the viewport is touching the top of an image from start to end.
                 // We don't want to use swipe-to-save image gesture, we want to use the
                 // swipe-to-close gesture instead.
                 callback.onSwipeToCloseImage()

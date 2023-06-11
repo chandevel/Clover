@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.github.adamantcheese.chan.ui.view.ShapeablePostImageView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,4 +9,4 @@
     tools:layout_height="@dimen/cell_post_thumbnail_size"
     tools:layout_width="@dimen/cell_post_thumbnail_size">
 
-</com.github.adamantcheese.chan.ui.view.ShapeablePostImageView>
+</com.github.adamantcheese.chan.ui.widget.ShapeablePostImageView>

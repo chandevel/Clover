@@ -41,7 +41,7 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
-import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.features.notifications.SavingNotification;
 import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.*;

@@ -11,8 +11,8 @@ import android.text.style.*;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
-import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.spans.BackgroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.spans.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.vdurmont.emoji.EmojiParser;

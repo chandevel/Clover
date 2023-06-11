@@ -49,8 +49,8 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.ui.service.LastPageNotification;
-import com.github.adamantcheese.chan.ui.service.WatchNotification;
+import com.github.adamantcheese.chan.features.notifications.LastPageNotification;
+import com.github.adamantcheese.chan.features.notifications.WatchNotification;
 import com.github.adamantcheese.chan.utils.*;
 
 import org.greenrobot.eventbus.EventBus;

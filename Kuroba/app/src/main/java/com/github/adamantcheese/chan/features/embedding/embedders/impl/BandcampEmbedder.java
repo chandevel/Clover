@@ -11,7 +11,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.features.embedding.embedders.base.HtmlEmbedder;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Document;

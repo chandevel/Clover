@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
-import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.QuoteLinkable;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.util.*;

@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <com.github.adamantcheese.chan.ui.view.ColorPickerView
+    <com.github.adamantcheese.chan.ui.widget.ColorPickerView
         android:id="@+id/color_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

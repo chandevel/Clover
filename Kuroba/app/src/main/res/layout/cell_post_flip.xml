@@ -132,7 +132,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </RelativeLayout>
 
-    <com.github.adamantcheese.chan.ui.view.MulticolorBarView
+    <com.github.adamantcheese.chan.ui.widget.MulticolorBarView
         android:id="@+id/filter_match_color"
         android:layout_width="5dp"
         android:layout_height="match_parent"
