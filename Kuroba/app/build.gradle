@@ -8,7 +8,7 @@ android {
     // don't forget to also update the github workflow
     // !!! IMPORTANT !!!
 
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     def getCommitHash = { ->
         def stdout = new ByteArrayOutputStream()

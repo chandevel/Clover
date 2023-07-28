@@ -86,8 +86,6 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
             webView = webview
             webview.setDefaultSettings()
 
-            webview.settings.userAgentString = NetUtils.USER_AGENT
-
             webview.webViewClient = object : WebViewClientCompat() {
                 override fun onPageFinished(view: WebView, url: String) {
                     fun isCloudFlareBypassed(origRequestUrl: String): Boolean {

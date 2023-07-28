@@ -11,6 +11,7 @@ import static okhttp3.Protocol.HTTP_2;
 
 import android.graphics.Bitmap;
 import android.util.JsonReader;
+import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,8 +41,6 @@ import okhttp3.internal.http2.StreamResetException;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 public class NetUtils {
-    public static final String USER_AGENT = BuildConfigUtils.VERSION;
-
     public static final int MB = 1024 * 1024;
     // The OkHttpClient installed cache, used for all requests
     private static final Cache OK_HTTP_CACHE = new Cache(new File(getCacheDir(), "okhttp"),
@@ -62,7 +61,11 @@ public class NetUtils {
             )))
             .addNetworkInterceptor(chain -> {
                 // interceptor to add the User-Agent for all requests
-                Request request = chain.request().newBuilder().header("User-Agent", USER_AGENT).build();
+                Request request = chain
+                        .request()
+                        .newBuilder()
+                        .header("User-Agent", WebSettings.getDefaultUserAgent(AndroidUtils.getAppContext()))
+                        .build();
                 return chain.proceed(request);
             }));
 
@@ -126,15 +129,19 @@ public class NetUtils {
     }
 
     public static Call makeHttpCall(HttpCall<?> httpCall) {
-        return makeHttpCall(httpCall, Collections.emptyList(), null, true);
+        return makeHttpCall(httpCall, true);
     }
 
     public static Call makeHttpCall(HttpCall<?> httpCall, boolean enqueue) {
-        return makeHttpCall(httpCall, Collections.emptyList(), null, enqueue);
+        return makeHttpCall(httpCall, Collections.emptyList(), enqueue);
     }
 
     public static Call makeHttpCall(HttpCall<?> httpCall, List<Interceptor> extraInterceptors) {
         return makeHttpCall(httpCall, extraInterceptors, null, true);
+    }
+
+    public static Call makeHttpCall(HttpCall<?> httpCall, List<Interceptor> extraInterceptors, boolean enqueue) {
+        return makeHttpCall(httpCall, extraInterceptors, null, enqueue);
     }
 
     public static Call makeHttpCall(

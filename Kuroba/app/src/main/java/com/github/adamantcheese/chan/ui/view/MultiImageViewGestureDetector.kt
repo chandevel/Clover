@@ -22,7 +22,7 @@ class MultiImageViewGestureDetector(
 
     private var startingImageViewportTouchSide = CustomScaleImageView.ImageViewportTouchSide(0)
 
-    override fun onDown(e: MotionEvent?): Boolean {
+    override fun onDown(e: MotionEvent): Boolean {
         val activeView = callback.getActiveView()
         if (activeView is CustomScaleImageView) {
             startingImageViewportTouchSide = activeView.imageViewportTouchSide
@@ -51,7 +51,7 @@ class MultiImageViewGestureDetector(
         return true
     }
 
-    override fun onDoubleTap(e: MotionEvent?): Boolean {
+    override fun onDoubleTap(e: MotionEvent): Boolean {
         val activeView = callback.getActiveView()
         if (activeView is GifImageView) {
             val gifImageViewDrawable = activeView.drawable as GifDrawable

@@ -76,7 +76,6 @@ public class CaptchaV2JsLayout
 
     public CaptchaV2JsLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        getSettings().setUserAgentString(NetUtils.USER_AGENT);
     }
 
     @SuppressLint("SetJavaScriptEnabled")

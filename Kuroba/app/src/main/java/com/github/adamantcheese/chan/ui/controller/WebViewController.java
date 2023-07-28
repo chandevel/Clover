@@ -67,7 +67,6 @@ public class WebViewController
             settings.setJavaScriptCanOpenWindowsAutomatically(true);
             settings.setJavaScriptEnabled(true);
             settings.setDomStorageEnabled(true);
-            settings.setUserAgentString(NetUtils.USER_AGENT);
             webView.setWebChromeClient(new WebChromeClient() {
                 @Override
                 public void onCloseWindow(WebView window) {

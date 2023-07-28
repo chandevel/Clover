@@ -96,7 +96,6 @@ public class LegacyCaptchaLayout
         if (!isInEditMode()) {
             WebSettings settings = internalWebView.getSettings();
             settings.setJavaScriptEnabled(true);
-            settings.setUserAgentString(NetUtils.USER_AGENT);
         }
 
         CookieManager cookieManager = CookieManager.getInstance();

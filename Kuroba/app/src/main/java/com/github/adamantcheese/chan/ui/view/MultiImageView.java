@@ -489,7 +489,6 @@ public class MultiImageView
     static {
         OkHttpDataSource.Factory okHttpFactory =
                 new OkHttpDataSource.Factory((Call.Factory) NetUtils.applicationClient);
-        okHttpFactory.setUserAgent(NetUtils.USER_AGENT);
         okHttpFactory.setCacheControl(NetUtilsClasses.ONE_DAY_CACHE);
         CacheDataSource.Factory cacheFactory = new CacheDataSource.Factory();
         cacheFactory.setUpstreamDataSourceFactory(okHttpFactory);
@@ -676,7 +675,6 @@ public class MultiImageView
             }
         });
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setUserAgentString(NetUtils.USER_AGENT);
         webView.loadUrl(postImage.imageUrl.toString());
         webView.setBackgroundColor(Color.TRANSPARENT);
         if (!hasContent || mode == Mode.WEBVIEW) {

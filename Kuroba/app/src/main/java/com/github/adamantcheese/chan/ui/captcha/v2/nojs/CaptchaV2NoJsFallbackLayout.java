@@ -62,7 +62,6 @@ public class CaptchaV2NoJsFallbackLayout
 
     public CaptchaV2NoJsFallbackLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        getSettings().setUserAgentString(NetUtils.USER_AGENT);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
