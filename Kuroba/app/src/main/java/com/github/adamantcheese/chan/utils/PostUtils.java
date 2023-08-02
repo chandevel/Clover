@@ -76,7 +76,7 @@ public class PostUtils {
      * @param image        The image to generate a summary for.
      * @param existingText Any existing text; if null, a new spannable string builder will be used.
      * @param dialog       The dialog we're pumping this info into
-     * @param textView     An optional text view to write into
+     * @param textView     An optional text view to write into, preferred over dialog
      */
     public static void generatePostImageSummaryAndSetTextViewWithUpdates(
             @NonNull PostImage image,

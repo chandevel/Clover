@@ -50,21 +50,22 @@ import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
+import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.features.theme.Theme;
+import com.github.adamantcheese.chan.features.theme.Theme.MaterialColorStyle;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.controller.ImageViewerController;
 import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
-import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
-import com.github.adamantcheese.chan.features.theme.Theme;
-import com.github.adamantcheese.chan.features.theme.Theme.MaterialColorStyle;
 import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.*;
@@ -135,14 +136,14 @@ public class ThemeSettingsController
         public Object onPopulatePostOptions(
                 Post post, List<FloatingMenuItem<PostOptions>> menu, List<FloatingMenuItem<PostOptions>> extraMenu
         ) {
-            menu.add(new FloatingMenuItem<>(PostOptions.POST_OPTION_INFO, "Option"));
+            menu.add(new FloatingMenuItem<>(PostOptions.POST_OPTION_INFO, R.string.post_info));
             return 0;
         }
 
         @Override
         public void onPostOptionClicked(View anchor, Post post, PostOptions id, boolean inPopup) {
             if (id == PostOptions.POST_OPTION_INFO) {
-                showToast(context, "Menu option test.");
+                ThreadPresenter.showPostInfo(context, post, null, this);
             }
         }
 
@@ -545,6 +546,8 @@ public class ThemeSettingsController
                             .imageUrl(TEST_POST_IMAGE_URL)
                             .thumbnailUrl(TEST_POST_IMAGE_URL)
                             .filename("new_icon_512")
+                            .imageWidth(512)
+                            .imageHeight(512)
                             .extension("png")
                             .build()))
                     .addHttpIcon(new PostHttpIcon(SiteEndpoints.IconType.BOARD_FLAG,

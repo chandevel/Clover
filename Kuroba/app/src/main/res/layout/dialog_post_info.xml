@@ -20,8 +20,7 @@
         android:id="@+id/post_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/lorem_ipsum"
-        android:textIsSelectable="true" />
+        tools:text="@string/lorem_ipsum" />
 
     <LinearLayout
         android:id="@+id/linkable_group"

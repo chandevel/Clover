@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.presenter.OnPostLinkableClickedInterface;
 import com.github.adamantcheese.chan.ui.text.spans.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -39,7 +40,7 @@ public interface PostCellInterface {
 
     ImageView getThumbnailView(PostImage postImage);
 
-    interface PostCellCallback {
+    interface PostCellCallback extends OnPostLinkableClickedInterface {
         Loadable getLoadable();
 
         String getSearchQuery();

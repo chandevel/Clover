@@ -27,11 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.MalformedJsonException;
-import android.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.*;
 
 import androidx.annotation.Nullable;
@@ -79,7 +75,7 @@ public class ThreadPresenter
         implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback,
-                   ProgressResponseBody.ProgressListener {
+                   ProgressResponseBody.ProgressListener, OnPostLinkableClickedInterface {
     @Inject
     private WatchManager watchManager;
 
@@ -616,7 +612,7 @@ public class ThreadPresenter
                 threadPresenterCallback.quote(post, true);
                 break;
             case POST_OPTION_INFO:
-                showPostInfo(post);
+                showPostInfo(context, post, getChanThread(), this);
                 break;
             case POST_OPTION_COPY:
                 showSubMenuOptions(anchor, post, inPopup, populateCopyMenuOptions(post));
@@ -1033,7 +1029,9 @@ public class ThreadPresenter
         }
     }
 
-    private void showPostInfo(Post post) {
+    public static void showPostInfo(
+            Context context, Post post, ChanThread thread, OnPostLinkableClickedInterface clickedInterface
+    ) {
         View fullView = LayoutInflater.from(context).inflate(R.layout.dialog_post_info, null);
         AlertDialog dialog =
                 getDefaultAlertBuilder(context).setView(fullView).setPositiveButton(R.string.ok, null).create();
@@ -1059,16 +1057,15 @@ public class ThreadPresenter
             text.append("Capcode: ").append(post.capcode).append("\n");
         }
 
-        if (!TextUtils.isEmpty(post.id) && isBound() && chanLoader.getThread() != null) {
+        if (!TextUtils.isEmpty(post.id)) {
             text.append("Id: ").append(post.id).append("\n");
-            int count = 0;
-            try {
-                for (Post p : chanLoader.getThread().getPosts()) {
+            if (thread != null) {
+                int count = 0;
+                for (Post p : thread.getPosts()) {
                     if (p.id.equals(post.id)) count++;
                 }
-            } catch (Exception ignored) {
+                text.append("Id post count: ").append(count).append("\n");
             }
-            text.append("Post count: ").append(count).append("\n");
         }
 
         for (PostHttpIcon icon : post.httpIcons) {
@@ -1111,7 +1108,7 @@ public class ThreadPresenter
 
         linkableList.setAdapter(new ArrayAdapter<>(context, R.layout.simple_list_item_thin, keys));
         linkableList.setOnItemClickListener((parent, view, position, id1) -> {
-            onPostLinkableClicked(post, linkables.get(position));
+            clickedInterface.onPostLinkableClicked(post, linkables.get(position));
             dialog.dismiss();
         });
         linkableList.setOnItemLongClickListener((parent, view, position, id1) -> {
@@ -1122,46 +1119,44 @@ public class ThreadPresenter
         if (linkables.size() <= 0) {
             linkableGroup.setVisibility(View.GONE);
         }
-        dialog.show();
+
         //makes the pre-"Post info" section selectable, from https://stackoverflow.com/a/61562979
-        View messageView = dialog.findViewById(android.R.id.message);
-        if (messageView instanceof TextView) {
-            TextView castMessageView = (TextView) messageView;
-            castMessageView.setTextIsSelectable(true);
+        infoText.setTextIsSelectable(true);
 
-            // add web search option to context menu
-            castMessageView.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-                @Override
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
-                    return true;
-                }
+        // add web search option to context menu
+        infoText.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
+                return true;
+            }
 
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return true;
-                }
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return true;
+            }
 
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    CharSequence selection = "Error getting selection!";
-                    try {
-                        // ensure that the start and end are in the right order, in case the selection start/end are flipped
-                        int start = Math.min(castMessageView.getSelectionEnd(), castMessageView.getSelectionStart());
-                        int end = Math.max(castMessageView.getSelectionEnd(), castMessageView.getSelectionStart());
-                        selection = castMessageView.getText().subSequence(start, end);
-                    } catch (Exception ignored) {}
-                    Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                    searchIntent.putExtra(SearchManager.QUERY, selection.toString());
-                    openIntent(searchIntent);
-                    return true;
-                }
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                CharSequence selection = "Error getting selection!";
+                try {
+                    // ensure that the start and end are in the right order, in case the selection start/end are flipped
+                    int start = Math.min(infoText.getSelectionEnd(), infoText.getSelectionStart());
+                    int end = Math.max(infoText.getSelectionEnd(), infoText.getSelectionStart());
+                    selection = infoText.getText().subSequence(start, end);
+                } catch (Exception ignored) {}
+                Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                searchIntent.putExtra(SearchManager.QUERY, selection.toString());
+                openIntent(searchIntent);
+                return true;
+            }
 
-                @Override
-                public void onDestroyActionMode(ActionMode mode) {
-                }
-            });
-        }
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        });
+
+        dialog.show();
     }
 
     private void showPosts() {
