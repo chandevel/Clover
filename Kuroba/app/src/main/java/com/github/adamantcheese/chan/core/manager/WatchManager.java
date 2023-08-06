@@ -99,13 +99,10 @@ public class WatchManager
     private static final long FOREGROUND_INTERVAL = SECONDS.toMillis(15);
     private static final int MESSAGE_UPDATE = 1;
 
-    private static final long STATE_UPDATE_DEBOUNCE_TIME_MS = 1000L;
-
     private final DatabasePinManager databasePinManager;
 
     private IntervalType currentInterval = NONE;
     private final List<Pin> pins;
-    private final Debouncer stateUpdateDebouncer;
 
     private final Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
@@ -113,7 +110,6 @@ public class WatchManager
     public WatchManager(
             DatabasePinManager databasePinManager
     ) {
-        stateUpdateDebouncer = new Debouncer(true);
         this.databasePinManager = databasePinManager;
 
         pins = Collections.synchronizedList(DatabaseUtils.runTask(databasePinManager.getPins()));
@@ -136,25 +132,19 @@ public class WatchManager
     }
 
     public void createPin(Loadable loadable) {
-        createPin(loadable, true);
-    }
-
-    public boolean createPin(Loadable loadable, boolean sendBroadcast) {
-        Pin pin = new Pin();
-        pin.loadable = loadable;
-        return createPin(pin, sendBroadcast);
+        createPin(new Pin(loadable));
     }
 
     public void createPin(Pin pin) {
         createPin(pin, true);
     }
 
-    public boolean createPin(Pin pin, boolean sendBroadcast) {
+    public void createPin(Pin pin, boolean sendBroadcast) {
         synchronized (pins) {
             // No duplicates
             for (Pin e : pins) {
                 if (e.loadable.equals(pin.loadable)) {
-                    return false;
+                    return;
                 }
             }
 
@@ -176,8 +166,6 @@ public class WatchManager
             if (sendBroadcast) {
                 postToEventBus(new PinMessages.PinAddedMessage(pin));
             }
-
-            return true;
         }
     }
 
@@ -279,18 +267,6 @@ public class WatchManager
         }
     }
 
-    public Pin findPinByLoadableId(int loadableId) {
-        synchronized (pins) {
-            for (Pin pin : pins) {
-                if (pin.loadable.id == loadableId) {
-                    return pin;
-                }
-            }
-        }
-
-        return null;
-    }
-
     public Pin findPinById(int id) {
         synchronized (pins) {
             for (Pin pin : pins) {
@@ -341,7 +317,9 @@ public class WatchManager
         postToEventBus(new PinMessages.PinChangedMessage(pin));
     }
 
-    public void onBottomPostViewed(Pin pin) {
+    public void onBottomPostViewed(@Nullable Pin pin) {
+        if (pin == null) return;
+
         if (pin.watchNewCount >= 0) {
             pin.watchLastCount = pin.watchNewCount;
         }
@@ -432,7 +410,7 @@ public class WatchManager
     }
 
     @Nullable
-    public PinWatcher getPinWatcher(Pin pin) {
+    public PinWatcher getPinWatcher(@Nullable Pin pin) {
         return pinWatchers.get(pin);
     }
 
@@ -463,20 +441,6 @@ public class WatchManager
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
     private void updateState() {
-        BackgroundUtils.ensureMainThread();
-
-        // updateState() (which is now called updateStateInternal) was called way too often. It was
-        // called once per every active pin. Because of that startService/stopService was called way
-        // too often too, which also led to notification being updated too often, etc.
-        // All of that could sometimes cause the notification to turn into a silent notification.
-        // So to avoid this and to reduce the amount of pin updates per second a debouncer was
-        // introduced. It updateState() is called too often, it will skip all updates and will wait
-        // for at least STATE_UPDATE_DEBOUNCE_TIME_MS without any updates before calling
-        // updateStateInternal().
-        stateUpdateDebouncer.post(this::updateStateInternal, STATE_UPDATE_DEBOUNCE_TIME_MS);
-    }
-
-    private void updateStateInternal() {
         BackgroundUtils.ensureMainThread();
 
         updateIntervals();
@@ -651,7 +615,6 @@ public class WatchManager
     }
 
     private void pinWatcherUpdated(PinWatcher pinWatcher) {
-        updateState();
         postToEventBus(new PinMessages.PinChangedMessage(pinWatcher.pin));
 
         synchronized (WatchManager.this) {
@@ -662,6 +625,7 @@ public class WatchManager
                     Logger.i(this, "All watchers updated, finished at " + StringUtils.getCurrentTimeDefaultLocale());
                     waitingForPinWatchersForBackgroundUpdate = null;
                     WakeManager.getInstance().manageLock(false, WatchManager.this);
+                    updateState();
                 }
             }
         }
@@ -766,7 +730,7 @@ public class WatchManager
          * @param fromBackground was this update called from a background state
          * @return true if a data call was requested
          */
-        private boolean update(boolean fromBackground) {
+        protected boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
                 doPageNotification();

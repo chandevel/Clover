@@ -180,7 +180,16 @@ public class FilterWatchManager
                     final Loadable pinLoadable =
                             Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.loadable));
                     pinLoadable.thumbnailUrl = p.image() == null ? null : p.image().getThumbnailUrl();
-                    BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable));
+                    BackgroundUtils.runOnMainThread(() -> {
+                        watchManager.createPin(pinLoadable);
+                        Pin newPin = watchManager.getPinByLoadable(pinLoadable);
+                        if (newPin != null) {
+                            WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(newPin);
+                            if (pinWatcher != null) {
+                                pinWatcher.update(true);
+                            }
+                        }
+                    });
                     ignoredPosts.add(catalogPost);
                 }
                 //add all posts to ignore

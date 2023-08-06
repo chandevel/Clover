@@ -351,11 +351,7 @@ public class ThreadPresenter
             loadable.lastViewed = posts.get(posts.size() - 1).no;
         }
 
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            watchManager.onBottomPostViewed(pin);
-        }
-
+        watchManager.onBottomPostViewed(watchManager.getPinByLoadable(loadable));
         threadPresenterCallback.showNewPostsSnackbar(loadable, -1);
 
         // Update the last seen indicator
@@ -1198,17 +1194,7 @@ public class ThreadPresenter
 
     @Override
     public void openArchive(ExternalSiteArchive externalSiteArchive, Loadable op, int postNo) {
-        if (isBound()) {
-            showThread(externalSiteArchive.getArchiveLoadable(op, postNo));
-        }
-    }
-
-    public void markAllPostsAsSeen() {
-        if (!isBound()) return;
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            watchManager.onBottomPostViewed(pin);
-        }
+        showThread(externalSiteArchive.getArchiveLoadable(op, postNo));
     }
 
     private List<FloatingMenuItem<PostOptions>> populateFilterMenuOptions(Post post) {

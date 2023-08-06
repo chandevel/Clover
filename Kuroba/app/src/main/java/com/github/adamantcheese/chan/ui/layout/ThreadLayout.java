@@ -245,8 +245,6 @@ public class ThreadLayout
             if (errResId == R.string.thread_load_failed_not_found) {
                 errorRetryButton.setText(R.string.thread_view_external_archive);
                 archiveButton = true;
-
-                presenter.markAllPostsAsSeen();
             }
         }
     }

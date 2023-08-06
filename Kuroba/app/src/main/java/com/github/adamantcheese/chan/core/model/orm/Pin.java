@@ -67,6 +67,10 @@ public class Pin
     public Pin() {
     }
 
+    public Pin(Loadable loadable) {
+        this.loadable = loadable;
+    }
+
     public Pin(
             @NonNull Loadable loadable,
             boolean watching,

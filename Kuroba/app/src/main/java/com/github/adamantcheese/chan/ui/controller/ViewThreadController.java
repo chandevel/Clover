@@ -393,7 +393,7 @@ public class ViewThreadController
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
-        Pin pin = loadable == null ? null : watchManager.findPinByLoadableId(loadable.id);
+        Pin pin = watchManager.getPinByLoadable(loadable);
         DrawerController drawerController = getDrawerController();
         if (drawerController == null) return;
         drawerController.setPinHighlighted(pin);
@@ -422,7 +422,7 @@ public class ViewThreadController
 
     private void setPinIconState(boolean animated) {
         if (loadable == null) return;
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        Pin pin = watchManager.getPinByLoadable(loadable);
 
         ToolbarMenuItem menuItem = navigation.findItem(MenuId.PIN);
         if (menuItem == null) {
