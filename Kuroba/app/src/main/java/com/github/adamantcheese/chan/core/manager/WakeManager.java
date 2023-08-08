@@ -136,7 +136,12 @@ public class WakeManager {
                     ChanSettings.watchBackgroundInterval.get(),
                     pendingIntent
             );
-            Logger.i(this, "Started background alarm with an interval of " + ChanSettings.watchBackgroundInterval);
+            Logger.i(this,
+                    "Started background alarm with an interval of "
+                            + ChanSettings.watchBackgroundInterval
+                            + " at "
+                            + StringUtils.getCurrentTimeDefaultLocale()
+            );
             alarmRunning = true;
         }
     }

@@ -222,7 +222,22 @@ public class WatchManager
     }
 
     public void updatePin(Pin pin, boolean updateState) {
-        updatePinsInternal(Collections.singletonList(pin));
+        synchronized (pins) {
+            Set<Pin> foundPins = new HashSet<>();
+
+            for (int i = 0; i < pins.size(); i++) {
+                if (pins.get(i).loadable.id == pin.loadable.id) {
+                    pins.set(i, pin);
+                    foundPins.add(pin);
+                    break;
+                }
+            }
+
+            if (!foundPins.contains(pin)) {
+                pins.add(pin);
+            }
+        }
+
         DatabaseUtils.runTask(databasePinManager.updatePin(pin));
 
         if (updateState) {
@@ -230,41 +245,6 @@ public class WatchManager
         }
 
         postToEventBus(new PinMessages.PinChangedMessage(pin));
-    }
-
-    public void updatePins(List<Pin> updatedPins, boolean updateState) {
-        updatePinsInternal(updatedPins);
-        updatePinsInDatabase();
-
-        if (updateState) {
-            updateState();
-        }
-
-        for (Pin updatedPin : updatedPins) {
-            postToEventBus(new PinMessages.PinChangedMessage(updatedPin));
-        }
-    }
-
-    private void updatePinsInternal(List<Pin> updatedPins) {
-        synchronized (pins) {
-            Set<Pin> foundPins = new HashSet<>();
-
-            for (Pin updatedPin : updatedPins) {
-                for (int i = 0; i < pins.size(); i++) {
-                    if (pins.get(i).loadable.id == updatedPin.loadable.id) {
-                        pins.set(i, updatedPin);
-                        foundPins.add(updatedPin);
-                        break;
-                    }
-                }
-            }
-
-            for (Pin updatedPin : updatedPins) {
-                if (!foundPins.contains(updatedPin)) {
-                    pins.add(updatedPin);
-                }
-            }
-        }
     }
 
     public Pin findPinById(int id) {
@@ -464,18 +444,9 @@ public class WatchManager
     private boolean updatePinWatchers() {
         boolean hasActiveUnreadPins = false;
         synchronized (pins) {
-            List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
-
             for (Pin pin : pins) {
                 if (pin.isError || pin.archived) {
                     pin.watching = false;
-                }
-
-                if (pin.isError) {
-                    // When a thread gets deleted just mark all posts as read
-                    // since there is no way for us to read them anyway
-                    pin.watchLastCount = pin.watchNewCount;
-                    pinsToUpdateInDatabase.add(pin);
                 }
 
                 if (ChanSettings.watchEnabled.get()) {
@@ -495,10 +466,6 @@ public class WatchManager
                         }
                     }
                 }
-            }
-
-            if (pinsToUpdateInDatabase.size() > 0) {
-                updatePins(pinsToUpdateInDatabase, false);
             }
         }
 
