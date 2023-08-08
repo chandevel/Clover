@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -43,6 +44,7 @@ import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.skydoves.balloon.BalloonPersistence;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -145,6 +147,7 @@ public class DeveloperSettingsController
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
+                new File(getCacheDir(), "filter_watch_ignores.json").delete();
                 showToast(context, "Cleared ignores");
             } catch (Exception e) {
                 showToast(context, "Failed to clear ignores");
