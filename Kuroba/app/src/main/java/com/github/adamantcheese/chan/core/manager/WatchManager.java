@@ -642,7 +642,7 @@ public class WatchManager
         public PinWatcher(Pin pin) {
             this.pin = pin;
 
-            Logger.d(this, "created for " + pin.loadable.toString());
+            Logger.vd(this, "created for " + pin.loadable.toString());
             chanLoader = ChanLoaderManager.obtain(pin.loadable, this);
             PageRepository.addListener(this);
         }
@@ -683,7 +683,7 @@ public class WatchManager
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.d(
+                Logger.vd(
                         this,
                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
@@ -720,8 +720,6 @@ public class WatchManager
 
         @Override
         public void onFailure(Exception error) {
-            Logger.w(this, "onChanLoaderError()");
-
             // Ignore normal network errors, we only pause pins when there is absolutely no way
             // we'll ever need watching again: a 404.
             if (error instanceof NetUtilsClasses.HttpCodeException

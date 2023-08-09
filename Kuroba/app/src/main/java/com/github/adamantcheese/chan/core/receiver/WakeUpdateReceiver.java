@@ -25,6 +25,6 @@ public class WakeUpdateReceiver
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        WakeManager.getInstance().onBroadcastReceived(true);
+        WakeManager.getInstance().onBroadcastReceived(false);
     }
 }

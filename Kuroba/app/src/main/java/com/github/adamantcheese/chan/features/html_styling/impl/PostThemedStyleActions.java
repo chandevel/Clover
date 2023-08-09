@@ -45,10 +45,11 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.embedding.embedders.impl.ImgurEmbedder;
 import com.github.adamantcheese.chan.features.html_styling.base.*;
-import com.github.adamantcheese.chan.ui.text.spans.CustomTypefaceSpan;
-import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
 import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
+import com.github.adamantcheese.chan.ui.text.spans.CustomTypefaceSpan;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 
@@ -194,7 +195,7 @@ public class PostThemedStyleActions {
             ThreadLink link = (ThreadLink) linkable.value;
             if (post.board.code.equals(link.boardCode)) {
                 Loadable thread = Loadable.forThread(post.board, link.threadId, "", false);
-                instance(FilterWatchManager.class).checkExternalThread(thread);
+                BackgroundUtils.runOnMainThread(() -> instance(FilterWatchManager.class).checkExternalThread(thread));
             }
         }
 

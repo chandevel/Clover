@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.core.manager;
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 
+import androidx.annotation.MainThread;
+
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -133,14 +135,16 @@ public class FilterWatchManager
         }
     }
 
+    @MainThread
     public void checkExternalThread(Loadable loadable) {
-        if (!processing.get()) {
-            processing.set(true);
-            WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
-
-            if (boardMatchAnyWatchFilters(loadable.board)) {
-                numBoardsChecked.incrementAndGet();
+        if (!processing.get() && boardMatchAnyWatchFilters(loadable.board)) {
+            try {
+                WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
                 addCatalogLoader(loadable, true, true);
+                processing.set(true);
+                numBoardsChecked.incrementAndGet();
+            } catch (Exception e) {
+                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
             }
         }
     }
