@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
 
 import android.graphics.Bitmap;
@@ -28,6 +29,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -37,8 +39,12 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapR
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 import com.github.adamantcheese.chan.features.theme.Theme;
+import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.PostLinkable;
+import com.github.adamantcheese.chan.ui.text.spans.post_linkables.ThreadLinkable;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.*;
@@ -164,6 +170,7 @@ public class ChanReaderParser
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();
         List<Post> deletedPosts = new ArrayList<>();
+
         if (cached.size() > 0) {
             // Add all posts that were parsed before
             cachedPosts.addAll(cached);
@@ -225,10 +232,22 @@ public class ChanReaderParser
             }
         }
 
-        // add in removed posts from new posts
         for (Post post : newPosts) {
+            // add in removed posts from new posts
             if (post.filterRemove) {
                 removedPosts.add(new PostHide(post.board.siteId, post.boardCode, post.no));
+            }
+
+            // for any new posts in a thread, toss them through the filter watcher to attempt to follow
+            if (cachedPosts.isEmpty())
+                continue; // wait until threads get loaded initially, to not process all posts at once
+            for (PostLinkable<?> linkable : post.getLinkables()) {
+                if (linkable instanceof ThreadLinkable) {
+                    ThreadLink link = (ThreadLink) linkable.value;
+                    Loadable thread =
+                            Loadable.forThread(post.board, link.threadId, PostHelper.getTitle(post, null), false);
+                    BackgroundUtils.runOnMainThread(() -> instance(FilterWatchManager.class).checkExternalThread(thread));
+                }
             }
         }
 

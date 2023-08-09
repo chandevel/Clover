@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.STRIKETHROUGH;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.QUOTE_COLOR;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -33,7 +32,6 @@ import com.github.adamantcheese.chan.core.manager.*;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -49,7 +47,6 @@ import com.github.adamantcheese.chan.features.theme.Theme;
 import com.github.adamantcheese.chan.ui.helper.ThemeHelper;
 import com.github.adamantcheese.chan.ui.text.spans.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.spans.post_linkables.*;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 
@@ -188,14 +185,6 @@ public class PostThemedStyleActions {
                 } else {
                     text = TextUtils.concat(text, " (You)");
                 }
-            }
-        }
-
-        if (linkable instanceof ThreadLinkable) {
-            ThreadLink link = (ThreadLink) linkable.value;
-            if (post.board.code.equals(link.boardCode)) {
-                Loadable thread = Loadable.forThread(post.board, link.threadId, "", false);
-                BackgroundUtils.runOnMainThread(() -> instance(FilterWatchManager.class).checkExternalThread(thread));
             }
         }
 

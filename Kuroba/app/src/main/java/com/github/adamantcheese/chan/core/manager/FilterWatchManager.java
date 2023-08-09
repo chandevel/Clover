@@ -138,9 +138,10 @@ public class FilterWatchManager
 
     @MainThread
     public void checkExternalThread(Loadable loadableForThread) {
-        if (boardMatchAnyWatchFilters(loadableForThread.board)) {
-            WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
-            externallyCheckedPosts.add(new CatalogPost(loadableForThread));
+        CatalogPost postForThread = new CatalogPost(loadableForThread);
+        if (!externallyCheckedPosts.contains(postForThread) && boardMatchAnyWatchFilters(loadableForThread.board)) {
+            Logger.i(this, "Following linked thread: " + loadableForThread.title);
+            externallyCheckedPosts.add(postForThread);
             setupLoader(loadableForThread).requestFreshData();
         }
     }
@@ -196,13 +197,20 @@ public class FilterWatchManager
                     lastCheckedPosts.add(catalogPost);
                 }
             }
-            Logger.i(this, "Filter loader for /" + result.loadable.boardCode + "/ processed, left " + numBoardsChecked);
+            if (!onlyCheckOp) {
+                Logger.i(
+                        this,
+                        "Filter loader for /" + result.loadable.boardCode + "/ processed, left " + numBoardsChecked
+                );
+            }
             checkComplete();
         }
 
         @Override
         public void onFailure(Exception error) {
-            Logger.i(this, "Filter loader failed, left " + numBoardsChecked);
+            if (!onlyCheckOp) {
+                Logger.i(this, "Filter loader failed, left " + numBoardsChecked, error);
+            }
             checkComplete();
         }
 
@@ -217,13 +225,13 @@ public class FilterWatchManager
                         this,
                         "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale()
                 );
+                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
             }
             try (FileWriter writer = new FileWriter(CACHED_IGNORES)) {
                 AppModule.gson.toJson(ignoredPosts, IGNORED_TYPE, writer);
             } catch (Exception e) {
                 CACHED_IGNORES.delete();
             }
-            WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
         }
     }
 
