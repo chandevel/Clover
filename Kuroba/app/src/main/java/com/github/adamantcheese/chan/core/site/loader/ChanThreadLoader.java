@@ -114,6 +114,16 @@ public class ChanThreadLoader {
         }
     }
 
+    public void clearListeners()
+    {
+        listeners.clear();
+        clearTimer();
+        if (call != null) {
+            call.cancel();
+            call = null;
+        }
+    }
+
     @Nullable
     public ChanThread getThread() {
         return thread;

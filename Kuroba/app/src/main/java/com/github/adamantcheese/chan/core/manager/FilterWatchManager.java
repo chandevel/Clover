@@ -52,11 +52,12 @@ public class FilterWatchManager
     //ignoredPosts keeps track of threads pinned by the filter manager and ignores them for future alarm triggers
     //this lets you unpin threads that are pinned by the filter pin manager and not have them come back
     //note that ignoredPosts is currently only saved while the application is running and not in the database
-    private final Map<ChanThreadLoader, CatalogLoader> filterLoaders = new HashMap<>();
+    private final List<ChanThreadLoader> filterLoaders = new ArrayList<>();
     private final Set<CatalogPost> ignoredPosts = Collections.synchronizedSet(new HashSet<>());
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private final AtomicInteger numBoardsChecked = new AtomicInteger();
     private final Set<CatalogPost> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
+    private final Set<CatalogPost> externallyCheckedPosts = Collections.synchronizedSet(new HashSet<>());
     private final AtomicBoolean processing = new AtomicBoolean(false);
 
     private static final Type IGNORED_TYPE = new TypeToken<Set<CatalogPost>>() {}.getType();
@@ -99,7 +100,7 @@ public class FilterWatchManager
             processing.set(true);
             WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
             populateFilterLoaders();
-            if (filterLoaders.keySet().isEmpty()) {
+            if (filterLoaders.isEmpty()) {
                 WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
             } else {
                 Logger.i(
@@ -109,7 +110,7 @@ public class FilterWatchManager
                                 + " filter loaders, started at "
                                 + StringUtils.getCurrentTimeDefaultLocale()
                 );
-                for (ChanThreadLoader loader : filterLoaders.keySet()) {
+                for (ChanThreadLoader loader : filterLoaders) {
                     loader.requestFreshData();
                 }
             }
@@ -117,8 +118,8 @@ public class FilterWatchManager
     }
 
     private void populateFilterLoaders() {
-        for (Map.Entry<ChanThreadLoader, CatalogLoader> entry : filterLoaders.entrySet()) {
-            entry.getKey().removeListener(entry.getValue());
+        for (ChanThreadLoader loader : filterLoaders) {
+            loader.clearListeners();
         }
         filterLoaders.clear();
         //get a set of boards to background load
@@ -131,21 +132,15 @@ public class FilterWatchManager
         numBoardsChecked.set(boards.size());
 
         for (Board b : boards) {
-            addCatalogLoader(Loadable.forCatalog(b), false, false);
+            filterLoaders.add(setupLoader(Loadable.forCatalog(b)));
         }
     }
 
     @MainThread
-    public void checkExternalThread(Loadable loadable) {
-        if (!processing.get() && boardMatchAnyWatchFilters(loadable.board)) {
-            try {
-                WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
-                addCatalogLoader(loadable, true, true);
-                processing.set(true);
-                numBoardsChecked.incrementAndGet();
-            } catch (Exception e) {
-                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
-            }
+    public void checkExternalThread(Loadable loadableForThread) {
+        if (boardMatchAnyWatchFilters(loadableForThread.board)) {
+            WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
+            setupLoader(loadableForThread).requestFreshData();
         }
     }
 
@@ -158,20 +153,19 @@ public class FilterWatchManager
         return false;
     }
 
-    private void addCatalogLoader(Loadable loadable, boolean onlyCheckOp, boolean startImmediately) {
-        CatalogLoader backgroundLoader = new CatalogLoader(onlyCheckOp);
+    private ChanThreadLoader setupLoader(Loadable loadable) {
+        CatalogLoader backgroundLoader = new CatalogLoader(loadable);
         ChanThreadLoader catalogLoader = new ChanThreadLoader(loadable);
         catalogLoader.addListener(backgroundLoader);
-        filterLoaders.put(catalogLoader, backgroundLoader);
-        if (startImmediately) catalogLoader.requestFreshData();
+        return catalogLoader;
     }
 
     private class CatalogLoader
             implements NetUtilsClasses.ResponseResult<ChanThread> {
-        private final boolean onlyCheckOp;
+        private final boolean onlyCheckOp; // externally loaded threads only check the OP
 
-        private CatalogLoader(boolean onlyCheckOp) {
-            this.onlyCheckOp = onlyCheckOp;
+        private CatalogLoader(Loadable loadable) {
+            this.onlyCheckOp = loadable.isThreadMode();
         }
 
         @Override
@@ -196,8 +190,13 @@ public class FilterWatchManager
                     });
                     ignoredPosts.add(catalogPost);
                 }
-                //add all posts to ignore
-                lastCheckedPosts.add(catalogPost);
+                if (onlyCheckOp) {
+                    // for externally loaded posts, we add to a separate, more permanent list
+                    externallyCheckedPosts.add(catalogPost);
+                } else {
+                    //add all posts to ignore
+                    lastCheckedPosts.add(catalogPost);
+                }
             }
             Logger.i(this, "Filter loader for /" + result.loadable.boardCode + "/ processed, left " + numBoardsChecked);
             checkComplete();
@@ -210,17 +209,23 @@ public class FilterWatchManager
         }
 
         private void checkComplete() {
-            if (numBoardsChecked.decrementAndGet() != 0) return;
-            ignoredPosts.retainAll(lastCheckedPosts);
+            if (!onlyCheckOp) {
+                if (numBoardsChecked.decrementAndGet() != 0) return;
+                lastCheckedPosts.addAll(externallyCheckedPosts);
+                ignoredPosts.retainAll(lastCheckedPosts);
+                lastCheckedPosts.clear();
+                processing.set(false);
+                Logger.i(
+                        this,
+                        "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale()
+                );
+            }
             try (FileWriter writer = new FileWriter(CACHED_IGNORES)) {
                 AppModule.gson.toJson(ignoredPosts, IGNORED_TYPE, writer);
             } catch (Exception e) {
                 CACHED_IGNORES.delete();
             }
-            lastCheckedPosts.clear();
-            Logger.i(this, "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale());
             WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
-            processing.set(false);
         }
     }
 
