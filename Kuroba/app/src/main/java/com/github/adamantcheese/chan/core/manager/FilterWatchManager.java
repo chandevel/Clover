@@ -140,6 +140,7 @@ public class FilterWatchManager
     public void checkExternalThread(Loadable loadableForThread) {
         if (boardMatchAnyWatchFilters(loadableForThread.board)) {
             WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
+            externallyCheckedPosts.add(new CatalogPost(loadableForThread));
             setupLoader(loadableForThread).requestFreshData();
         }
     }
@@ -190,10 +191,7 @@ public class FilterWatchManager
                     });
                     ignoredPosts.add(catalogPost);
                 }
-                if (onlyCheckOp) {
-                    // for externally loaded posts, we add to a separate, more permanent list
-                    externallyCheckedPosts.add(catalogPost);
-                } else {
+                if (!onlyCheckOp) {
                     //add all posts to ignore
                     lastCheckedPosts.add(catalogPost);
                 }
@@ -238,6 +236,12 @@ public class FilterWatchManager
             siteId = p.board.site.id();
             boardCode = p.boardCode;
             no = p.no;
+        }
+
+        public CatalogPost(Loadable l) {
+            siteId = l.board.site.id();
+            boardCode = l.boardCode;
+            no = l.no;
         }
 
         @Override
