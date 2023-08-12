@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LimitCallback;
+import com.github.adamantcheese.chan.utils.DefaultOnSeekBarChangeListener;
 
 public class SeekbarSettingView
         extends SettingView {
@@ -90,18 +91,8 @@ public class SeekbarSettingView
 
         max.setText(String.valueOf(setting.get()));
 
-        rangeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                max.setText(String.valueOf(convertProgressToRange(progress, seekBar.getMax())));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
+        rangeSlider.setOnSeekBarChangeListener((DefaultOnSeekBarChangeListener) (seekBar, progress, fromUser) -> max.setText(
+                String.valueOf(convertProgressToRange(progress, seekBar.getMax()))));
 
         DialogInterface.OnClickListener clickListener = (d, which) -> {
             setting.set(convertProgressToRange(rangeSlider.getProgress(), rangeSlider.getMax()));

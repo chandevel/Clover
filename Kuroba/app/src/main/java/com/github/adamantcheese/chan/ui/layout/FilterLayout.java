@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
 import com.github.adamantcheese.chan.ui.text.spans.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.ui.widget.ColorPickerView;
+import com.github.adamantcheese.chan.utils.DefaultOnSeekBarChangeListener;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -315,24 +316,15 @@ public class FilterLayout
         ColorPickerView colorView = colorPickerView.findViewById(R.id.color_picker);
         SeekBar alphaBar = colorPickerView.findViewById(R.id.alpha_picker);
         TextView percent = colorPickerView.findViewById(R.id.progress);
-        alphaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                colorView.setColor(Color.argb(progress,
-                        Color.red(colorView.getColor()),
-                        Color.green(colorView.getColor()),
-                        Color.blue(colorView.getColor())
-                ));
-                percent.setText(getQuantityString(R.plurals.percent,
-                        (int) (progress * 100 / (float) seekBar.getMax())
-                ));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+        alphaBar.setOnSeekBarChangeListener((DefaultOnSeekBarChangeListener) (seekBar, progress, fromUser) -> {
+            colorView.setColor(Color.argb(progress,
+                    Color.red(colorView.getColor()),
+                    Color.green(colorView.getColor()),
+                    Color.blue(colorView.getColor())
+            ));
+            percent.setText(getQuantityString(R.plurals.percent,
+                    (int) (progress * 100 / (float) seekBar.getMax())
+            ));
         });
         colorView.setColor(filter.color);
         alphaBar.setProgress(Color.alpha(filter.color));

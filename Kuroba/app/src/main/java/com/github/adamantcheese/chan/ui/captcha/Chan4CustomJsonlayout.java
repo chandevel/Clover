@@ -156,11 +156,6 @@ public class Chan4CustomJsonlayout
             ) {
                 return loader.shouldInterceptRequest(Uri.parse(url));
             }
-
-            @Override
-            public boolean shouldOverrideUrlCompat(@NonNull WebView view, @NonNull String url) {
-                return super.shouldOverrideUrlCompat(view, url);
-            }
         });
         captchaAutosolve.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -331,21 +326,10 @@ public class Chan4CustomJsonlayout
 
             topText.setText("Move the slider until text is legible.\n Then enter the text below.");
             slider.setVisibility(VISIBLE);
-            slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    Matrix centerScaleTranslateMatrix = new Matrix(centerScaleMatrix);
-                    centerScaleTranslateMatrix.postTranslate(-progress * scale, 0);
-                    bg.setImageMatrix(centerScaleTranslateMatrix);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                }
+            slider.setOnSeekBarChangeListener((DefaultOnSeekBarChangeListener) (seekBar, progress, fromUser) -> {
+                Matrix centerScaleTranslateMatrix = new Matrix(centerScaleMatrix);
+                centerScaleTranslateMatrix.postTranslate(-progress * scale, 0);
+                bg.setImageMatrix(centerScaleTranslateMatrix);
             });
 
             bg.setImageBitmap(currentStruct.origBg);

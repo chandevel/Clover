@@ -38,14 +38,15 @@
                 android:layout_height="match_parent"
                 android:scaleType="matrix"
                 tools:src="@drawable/bg"
-                tools:translationX="-35dp" />
+                tools:translationX="25dp" />
 
             <ImageView
                 android:id="@+id/fg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="matrix"
-                tools:src="@drawable/fg" />
+                tools:src="@drawable/fg"
+                tools:translationX="60dp"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <SeekBar

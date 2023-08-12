@@ -40,6 +40,7 @@ import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.DefaultOnSeekBarChangeListener;
 
 public class ImageOptionsController
         extends BaseFloatingController
@@ -71,7 +72,7 @@ public class ImageOptionsController
     private final Pair<Integer, Integer> dims;
     private final CompressFormat imageFormat;
 
-    private final SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+    private final SeekBar.OnSeekBarChangeListener listener = new DefaultOnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (seekBar == quality) {
@@ -91,12 +92,6 @@ public class ImageOptionsController
                 ));
             }
         }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {}
     };
 
     public ImageOptionsController(Context context, Loadable loadable, ImageOptionsControllerCallback callback) {
