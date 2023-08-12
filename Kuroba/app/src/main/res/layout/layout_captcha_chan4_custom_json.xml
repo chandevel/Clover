@@ -5,96 +5,103 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor"
-    android:orientation="vertical"
-    android:paddingHorizontal="40dp">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/top_text"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:gravity="center"
-        android:textSize="18sp"
-        tools:text="Enter the text below." />
+        android:orientation="vertical"
+        android:paddingHorizontal="40dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="80dp">
-
-        <ImageView
-            android:id="@+id/color_match"
+        <TextView
+            android:id="@+id/top_text"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:src="@color/md_grey_200" />
-
-        <ImageView
-            android:id="@+id/bg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="matrix"
-            tools:src="@drawable/bg"
-            tools:translationX="-35dp" />
-
-        <ImageView
-            android:id="@+id/fg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="matrix"
-            tools:src="@drawable/fg" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <SeekBar
-        android:id="@+id/slider"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="24dp"
-        android:max="100"
-        android:progress="1"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:id="@+id/captcha_input"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
             android:gravity="center"
-            android:hint="@string/reply_captcha_text"
-            android:imeOptions="actionDone"
-            android:inputType="text|textCapCharacters"
-            android:maxLines="1"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/autosolve"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textSize="18sp"
+            tools:text="Enter the text below." />
 
-        <Button
-            android:id="@+id/autosolve"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:background="@drawable/ripple_item_background"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/verify"
-            app:layout_constraintStart_toEndOf="@id/captcha_input"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Solve" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp">
 
-        <ImageView
-            android:id="@+id/verify"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/ripple_item_background"
-            android:padding="18dp"
-            android:src="@drawable/ic_fluent_send_24_filled"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/themeDrawableColor" />
+            <ImageView
+                android:id="@+id/color_match"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:src="@color/md_grey_200" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="matrix"
+                tools:src="@drawable/bg"
+                tools:translationX="-35dp" />
+
+            <ImageView
+                android:id="@+id/fg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="matrix"
+                tools:src="@drawable/fg" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <SeekBar
+            android:id="@+id/slider"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:max="100"
+            android:progress="1"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/captcha_input"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:hint="@string/reply_captcha_text"
+                android:imeOptions="actionDone"
+                android:inputType="text|textCapCharacters"
+                android:maxLines="1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/autosolve"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/autosolve"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:background="@drawable/ripple_item_background"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/verify"
+                app:layout_constraintStart_toEndOf="@id/captcha_input"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Solve" />
+
+            <ImageView
+                android:id="@+id/verify"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/ripple_item_background"
+                android:padding="18dp"
+                android:src="@drawable/ic_fluent_send_24_filled"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/themeDrawableColor" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
 
     <WebView
         android:id="@+id/captcha_autosolve"

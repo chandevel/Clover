@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1/dist/tf.js"></script>
-    <script src="https://application.internal/js/app-4chan-captcha-solver.user.js" defer></script>
+    <script src="https://application.internal/captcha/solver.js" defer></script>
     <script>
-		function sleep(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
-		}
-    </script>
-    <script>
-		function reset() {
-		    document.getElementById("t-resp").value="";
-		    document.getElementById("t-slider").value=51;
-			document.getElementById("t-fg").style.backgroundImage="none";
-			document.getElementById("t-bg").style.backgroundImage="none";
-		}
+        var bg_width, fg_width;
+        function reset() {
+            document.getElementById("t-resp").value="";
+            document.getElementById("t-slider").value=51;
+            document.getElementById("t-fg").style.backgroundImage="none";
+            document.getElementById("t-bg").style.backgroundImage="none";
+        }
+
+        function onSliderChanged(value) {
+            var imgBg = new Image();
+            imgBg.src = getComputedStyle(document.getElementById("t-bg")).backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+            bg_width = imgBg.width;
+            var imgFg = new Image();
+            imgFg.src = getComputedStyle(document.getElementById("t-fg")).backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+            fg_width = imgFg.width;
+
+            var e = -Math.floor(value / 100 * (bg_width-fg_width));
+            document.getElementById("t-bg").style.backgroundPositionX = e + "px"
+        }
+
+        window.onload = (event) => {
+            document.getElementById("t-slider").addEventListener('input', (event) => {
+                onSliderChanged(event.target.value);
+            }, false);
+        };
     </script>
 </head>
 <body>
@@ -35,7 +48,7 @@
                         data-tip="Help" tabindex="-1">?
                 </button>
                 <div id="t-cnt"
-                     style="height: 80px; margin-top: 2px; position: relative; display: block; width: 80%; margin: auto;">
+                     style="height: 80px; margin-top: 2px; position: relative; display: block; width: 100%; margin: auto;">
                     <div
                             id="t-bg"
                             style="
@@ -43,7 +56,7 @@
                             height: 100%;
                             position: absolute;
                             background-repeat: no-repeat;
-                            background-position: 0px top;
+                            background-position: left top;
                             background-image: none;"
                     ></div>
                     <div

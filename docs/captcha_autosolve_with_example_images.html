@@ -1,12 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1/dist/tf.js"></script>
-    <script src="4chan-captcha-solver.user.js" defer></script>
+    <script src="solver.js" defer></script>
     <script>
-		function sleep(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
-		}
+        var bg_width, fg_width;
+        function reset() {
+            document.getElementById("t-resp").value="";
+            document.getElementById("t-slider").value=51;
+            document.getElementById("t-fg").style.backgroundImage="none";
+            document.getElementById("t-bg").style.backgroundImage="none";
+        }
+
+        function onSliderChanged(value) {
+            var imgBg = new Image();
+            imgBg.src = getComputedStyle(document.getElementById("t-bg")).backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+            bg_width = imgBg.width;
+            var imgFg = new Image();
+            imgFg.src = getComputedStyle(document.getElementById("t-fg")).backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+            fg_width = imgFg.width;
+            
+            var e = -Math.floor(value / 100 * (bg_width-fg_width));
+            document.getElementById("t-bg").style.backgroundPositionX = e + "px"
+        }
+        
+        window.onload = (event) => {
+            document.getElementById("t-slider").addEventListener('input', (event) => {
+                onSliderChanged(event.target.value);
+            }, false);
+        };
     </script>
 </head>
 <body>
@@ -27,7 +48,7 @@
                         data-tip="Help" tabindex="-1">?
                 </button>
                 <div id="t-cnt"
-                     style="height: 80px; margin-top: 2px; position: relative; display: block; width: 229px;">
+                     style="height: 80px; margin-top: 2px; position: relative; display: block; width: 300px;">
                     <div
                             id="t-bg"
                             style="
@@ -35,8 +56,8 @@
                             height: 100%;
                             position: absolute;
                             background-repeat: no-repeat;
-                            background-position: 0px top;
-							background-image: url('data:image/png;base64,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');
+                            background-position: left top;
+							background-image: url('data:image/png;base64,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');
 							"
                     ></div>
                     <div
@@ -47,12 +68,12 @@
                             position: absolute;
                             background-repeat: no-repeat;
                             background-position: left top;
-							background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABQAgMAAADehKDoAAAACVBMVEUK+Aru7u4AAAATuQaoAAAAAXRSTlMAQObYZgAAB1xJREFUWIWNmEuP2zYQxykjDhqfNkAUIL0H2NWncIsGaH1yBZGIeGqLukj4KbZF3UNObREtAp/WQWRI8yk7D5KiHptUh115RP7453CGL6U/+5g++XG2AM2sSIXGa35TX2BBO/wA6BZYO0C7yRdZaWn7PFUCcF5ojlgAiyyTCKFOLbDMUKLG9trClyJWNWou0QXvRqyqkIJ2cKJt9I96xILjXPqBhQCUCdtDEuk1/Sm8YCXi5yynzT1A679It6wv2HBL4SnBm5FljgDp0Htd7jnJuksVWfHx+KkgYd0BLMWNI/PF//DdsmOWoz+XhGWZdaReDMqrNbOal/i+z3UYkdW4TSpf9BRfnlVjrTs4Oiw19HSfUdyI37fr2IIaOuCVYqmDI1k4ouL7xh3dGYM8sraKWpR3lcUWVBFZWSOdxiF0hK39OJYNtDsMjKCr1krluuy9GBU6tFUbYtVs5YrcPXcUH/i4d73FzDtIOeM+KbUOeb0nLj49dkJlxHJsJSN7PeasEnnk6BiB9vSeWKWE8JbeNROQVXS5Jt6WjRQjpg+jraQUBUkbfGwMasnIlrJq6q2iUCRdir1IrZXgTk2qCy392adSxf3KyIZlGqWC84n1LbLqyGq5ZuOTXVEj1+wxVMwwYC2UEDKTRBa2oHLXB6zvRRl9o9DfuaPUJBbBKtBlYDXmSLWUSVicbwOr0fEhS+8kaij+z8SCwOoMMCvVxUHOr1QpiUlm+YQyPEGeq64Cqp+T4Q7ux6x1wmJjP2e1xFI3mBLv88DCBPEsfLe5/o5YetfJ4MroprOPsFqaMc29ymhRwXnW19cpC47fMMCMWXpIWGJhyNtzmZtbpZD1SsaOWUVk1Zh5Ww41Q5NoyqrCOLMrXGt70xn8jvPfQUZJ4vqvRBeoKwqPkkZ7YBkaqFcDq2otPOdajwHcZmDhTH7r34n1iFi0NuVqiLoeX59K/EqEUAFWgCzQ14FlxqwssDpm8cKhf8XXRzzvKJnUqADXwuwC0wUWCmPrE2GprVodqSgPdGabEClZTu9eF/WGfKCqG+h3M9am1bZAwJVa9QOr5pzjaq8Mri4hqyr5rvKb0IURq9HuMrD6O/EXvhlh5dS9uAewnkVLwfvI8j3f9LTEoF88i4NmBbwWcrWn1L1hP/GGjWvStQ/DdNhJCytcp8iL6Hxm8UAr6MvAWseY8CFHz2PaaUSWM8LKUACPyFbhRDCwdOerZV9mHQKr8KwrZp0jCzp5VcusEGmZRPWY9Ui9TVg36M9F1l48ky+zQFiZomWmFUBHYyPVOHunLBroRdZZc6RsExavZ3NW/UUWiBOuxqxqxqppN+BZNo2JhOVH7NGUdT9h9YOu1YfPs1j3wLrMWM3gr9WbL7CaEQtmLD1hLfkrRCWvDu//H+uXhHV4iNUJq8o/y8pMwnKBpWCRFctOWK+k6Nos6VrRMeU+spprrytiR3FvvD/XtMP+e+ovYlVSi2Kiee3FLrOKwKLvV1OWGljVKWWVA6tuPAt3mMJ6ssjK7Pl7zzK4B88jq/Iscu5BWCVtEtjIB4SvWKGwbuX9RsvOIMNtIOTWdzxlWa+Lt9oDq5uz0J8i0eBCFVhdgaytL2z8uk17E3MrRZdZ+vTM64ITaD/f9zqyjPf9v9Bjbgvr8hDLwgMsjsuwPtLpy/A2B7+fiPXnwywUfoksmidkkvbrNvaQt6k8TptTTDdm/TZet5nVj1myoRVdNpyiSzQWJyyasHpHalUxsPC/k8V641lbHhvyVzUcRNGIzugA/mEXkOlQMesFs0jiV/j/g7Aee1Y45OjktITZvYITr6WR5VM+j6zNBuBTYLHvw74QD1HpkVY9A9zW+a3HizGrkq3FRhb+wHpGLBHjWjW+c6hcE3Q9l74Pe/IiYfE+uqQjQRfPvM2Epaucdi/UrO4nLAYUHbN+YrGdnPpFF8b9/C4EE4pZh2WWIVbHxnjS9i6a6jpHVigxOg8VHd8JvPGsvvSlGma1I5Zl1j7WT1l85kNf/4yDxsbJXcSchdndp6xt3MnzgaoILWQUXUssOYgZPBJ8BPiD9lfrGeuAgNVg3aBz3A07tQ4suRFp6LfT7esSznbE2g+nqETtXtE1QS2D/XZB10HfHWnt6MsY9sM9AH7d+hYcX1X0YtRa+9SZ+MvwNVVb3ib3YqmYl566h1XCcqJmpCucIeHrq2xgpfcmIkDvTpCOYa3l3kRYthlY72jzEev7+xx5QnDApXMw6dFcF12q4JHZ5vozD8YC7OZ3U2q4k2Nttt2dLS40CxddKesjHpUvqcmNWazNHi3OOs301qwesQyY0yT3+Mw3U2px2ut2dOBMjtLJrSE2iQl+WevZo9q5jU9i2EaSIKLSSG9wla/mtRbuV7faXwGmF4xOWOzRA7b1+xJqxirZDwirmtRIrDdyaYY/GaxfzlnBrew4A+BhYhdpJ5rybBejUOvJTfVUl9OexYX2khitNzY8vySXxz88xOL2WIe4/Rh0+sqns22KdK5CcN3lKYcQ/wH/R3bBmv0PyQAAAABJRU5ErkJggg==');
+							background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAABQAgMAAADJpjAhAAAACVBMVEUL+Avu7u4AAACitRlfAAAAAXRSTlMAQObYZgAABulJREFUWIWdmM1qJDcQgDXGE8KcnGU7kD0lgQW7n2K8ZCE7p87QEp4+OYdZbD2FWTIh5OSDtWR9mgm06a6nTFVJpZZ6fhYyYKu7VfpUVSpJJSl9+rf+Sv3wq9TxuhX+mfb/o+pNfLSEOtnaJP/3UKb8o0i1OtR0/D1oPkaVAC55fZfZV8MBzWymVWIFlPDUxi8WMtQi60brYtARK26VznxbWEiaj1BN1Iq7KhNwz1qtM98eR60R9aoVq1ZobjFUOkblWiOqSF7aOqltYjcUbfUoThBl0/dlqhRxYQgORg0hu3B6kdIQlY5tDdAlbRlVRS1L2CWy4BYwQqUkbLt9G01YIAmK+XQAuxT1yb9LTzmqtLvFA7ekQSWddtqoibQdobzxtfQ0oFakxT964VsaL4vCN0pEoElRy+DGarKHapyhXktEedca2JUofccoS1p6VC9KeUfN1R5qpSkMbKeURGyPJm5QQhXUEUp4FHXkCOWOobT+iAozyr/ObYLib02XuGoLnwOq2EOxWc3r6Br1A6PmSoljl3qwj9Ti4mIf5c1675XAX42EsitS1NAj1X/DqPpcqj2K10v5EFAV+v93NkBkm5SoqzM2t57kKHKqSAhqHixVisPDjVHB3bWa72l1GmVwvG4yVJC7URcZin8TQU0FQbJ90OrZzTOSoO7U+R6q9k+/jFAuoJqn8D1MlDrIbdUkTI8BVfleroMIivIDlSRTPYa5GCaKoG6VuqbSugE191VzX65GqFo/Bt8Fd1de2ehb2+6jLri0I5SNw7CPmlDYNqiVjF6omvuQW1XBRymqSNzNiKb35dMMXhJf5SidoRyigpZYXhasHPaAM4RRQMtERNXeu1pNouIDqvcjOqUZrdQMOt08sLzzSJjgcrSPUvMM9SOhfoqoJaMA/p0HeSp7Xo4OoC5SlN161PK1f2dUjyvoQ4KCe9xB3AHU+URE8AMErRZPYQIxSo9QXyjX2O6jJpPlNqKmXL7VzSOhnDao5VmPe5wKs4Hqu/faNAOqClVYXBv0a0D58lLfVH4kPUrnKBqVxUHUd7hfdCpFYaJR+feAqssURRutFZTR2xzFvkhR8wylmxHq5+irxt1S1dqP+QHUXfBZfQTFLRhFkxGr+rDSzcao1vpycxDVamMZtcKaclcNWk3IiRnqDfQPHikonaEaeAZ4xKSIcjCXuJ3Cp8y1Cijcow+iFvDCKFy1/QxPUNqOUC+nUJsF9F4rWgJPo958BWVpEj5SqoaZ73L7FZRi1C5HmTBxcIl5JhRlc3/CSVQJzw8JqouoNqJe4MKjfHjrE6gtlztadBDVj7TqdW8F1fnpXMMp1Bk2ucSVoZMlT1aGz20Nz7TIGKIyagmCWmzDQ0DZilGw8yidowpXwwuias4TCUUT5jBqyTvQzDtiD9WROj2iCLC5CqhijPqVUKB5WGYYQIdQBVtGqL4kC7ElZp+SAwVU4VFO87DMNrzmlYiqBYWGnxWiFeerY1TDKDwwCGqneAoKiuNQUNS1bF5LThSngnJ+k0I3R5TdYQWGDy0AMEb9xeeqkKpttEe1XivTMmo2oOoWK5YRBa9SVJeg/LcCDQ4GuhyF1btbNbmnJW57Bp1fsb+lLbXiiWTB5fkVSoivDHA4fcHThR9JeK2mlhYyzA+gKD3KgNeqouNAlvUNWumVRz27EGg1tHN9T304ikMOwIIybwyic04Z8rzdsMU8q5c0cwC+2J2g8KhxLb6IqDUmg4jqpnp08kpRz4z6u5P5nR1e9TvZFYxkf9oeRb1gksmntmDxEop4jqSUbPaYJZKmXY1Q/YDq1LQr2+EIcK3bDywkw5Slt0YMNINWtQ8X04MqiisdUb/h3wdvXf6TPD+grKB4hXD8aB9EgmUvcT6u/OicRIVqs2GFW0Y9twPqIw57cnjJfnMVBcdVlPpg9/ASJILFmAu8P4Jyghrf+3Cuh+XVgHIedXXo8ghPYPJAe1vey9S3aESJeKJfp0e0ePmSnOjHPpAbCivf/SHtHT8PWslAVuGegcJofG9WhzJ24dlDDDhRkaXkwmd97K5vtnc1dx+f+vRzA/EiKqCC4tIc650+8jOb9K2BeE9TyUiz5mIUZAdv/xO2Se+O1rjoy42YaHXFR/qgVc02vM1RYpdJ1wicrP0iD9FFn/Rb46zGlSC9YDKpVjnrvslRkN5r0AJRQobKagEgl25yVHLdZvyKG12y1kuvkgtNcY8eIsyI5yPKjlBdoOBeQycbemkEhRtMVLmO91qCSq74lplKWLehDFrHiCFPljIIzfctNvjUZqjYtBG/Ov+Pqgw4F9GE6QfhQpcubhM2XkZRRDTBOn/f0+PWd4ftP7cZSrxo+A7PX6/9B6X7IC9Bg1P7AAAAAElFTkSuQmCC');
 							"
                     ></div>
                 </div>
                 <input id="t-slider" autocomplete="off" type="range"
-                       style="width: 100%; box-sizing: border-box; margin: 0px; transition: box-shadow 10s ease-out 0s; position: relative;"
+                       style="width: 300px; box-sizing: border-box; margin: 0px; transition: box-shadow 10s ease-out 0s; position: relative;"
                        min="0" max="100"/>
             </div>
         </div>

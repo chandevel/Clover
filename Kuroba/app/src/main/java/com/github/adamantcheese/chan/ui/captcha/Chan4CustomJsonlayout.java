@@ -85,7 +85,7 @@ public class Chan4CustomJsonlayout
     protected void onFinishInflate() {
         super.onFinishInflate();
         topText = findViewById(R.id.top_text);
-        topText.setText("Initializing some cookies, please wait...");
+        topText.setText("Initializing some cookies, please wait…");
         colorMatch = findViewById(R.id.color_match);
         bg = findViewById(R.id.bg);
         fg = findViewById(R.id.fg);
@@ -106,7 +106,7 @@ public class Chan4CustomJsonlayout
         });
         autoSolve = findViewById(R.id.autosolve);
         autoSolve.setText("Solve");
-        autoSolve.setOnClickListener(v -> tryAutoSolve());
+        autoSolve.setOnClickListener(v -> tryAutoSolve(true));
         verify = findViewById(R.id.verify);
         verify.setOnClickListener(v -> {
             handler.removeCallbacks(RESET_RUNNABLE);
@@ -141,7 +141,7 @@ public class Chan4CustomJsonlayout
         captchaAutosolve.setTranslationY(BuildConfig.DEBUG ? 0 : 1000000);
         WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
                 .setDomain("application.internal")
-                .addPathHandler("/js/", new WebViewAssetLoader.AssetsPathHandler(getContext()))
+                .addPathHandler("/captcha/", new WebViewAssetLoader.AssetsPathHandler(getContext()))
                 .build();
         captchaAutosolve.setWebViewClient(new WebViewClientCompat() {
             @Override
@@ -155,6 +155,20 @@ public class Chan4CustomJsonlayout
                     @NonNull WebView view, @NonNull String url
             ) {
                 return loader.shouldInterceptRequest(Uri.parse(url));
+            }
+
+            @Override
+            public boolean shouldOverrideUrlCompat(@NonNull WebView view, @NonNull String url) {
+                return super.shouldOverrideUrlCompat(view, url);
+            }
+        });
+        captchaAutosolve.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Logger.vd(Chan4CustomJsonlayout.this,
+                        consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
+                );
+                return true;
             }
         });
         captchaAutosolve.loadUrl("file:///android_asset/html/captcha_autosolve.html");
@@ -350,7 +364,7 @@ public class Chan4CustomJsonlayout
         doColorFiltering();
 
         if (Chan4.captchaAutosolve.get()) {
-            tryAutoSolve();
+            tryAutoSolve(false);
         }
     }
 
@@ -386,14 +400,15 @@ public class Chan4CustomJsonlayout
         fg.setColorFilter(adjustmentFilter);
     }
 
-    public void tryAutoSolve() {
+    public void tryAutoSolve(boolean manual) {
         if (currentStruct == null) return;
-        autoSolve.setText("Solving...");
-        autoSolve.setEnabled(false);
         if (!webviewReady) {
-            post(this::tryAutoSolve);
+            post(() -> tryAutoSolve(manual));
             return;
         }
+
+        autoSolve.setText("Solving…");
+        autoSolve.setEnabled(false);
 
         String bgHex = "\"url('data:image/png;base64, " + BitmapUtils.asBase64(currentStruct.origBg) + "')\"";
         String fgHex = "\"url('data:image/png;base64, " + BitmapUtils.asBase64(currentStruct.origFg) + "')\"";
@@ -401,13 +416,10 @@ public class Chan4CustomJsonlayout
         captchaAutosolve.loadUrl("javascript:"
                 + "document.getElementById(\"t-fg\").style.backgroundImage=" + fgHex +";"
                 + (currentStruct.origBg != null ? "document.getElementById(\"t-bg\").style.backgroundImage=" + bgHex + ";" : "")
-                + "solve(false).then(result => {"
-                // The sleep(1000) is required because the loop inside of the solver itself delays by a second
-                    + "sleep(1000).then(result2 => {"
-                        + "var resultString = document.getElementById(\"t-resp\").value;"
-                        + "var resultSlide = document.getElementById(\"t-slider\").value;"
-                        + "CaptchaAutocomplete.onAutosolveComplete(resultString, resultSlide);"
-                    + "})"
+                + "solve(" + (manual ? "true" : "false") + ").then(result => {"
+                    + "var resultString = document.getElementById(\"t-resp\").value;"
+                    + "var resultSlide = document.getElementById(\"t-slider\").value;"
+                    + "CaptchaAutocomplete.onAutosolveComplete(resultString, resultSlide);"
                 + "});");
         //@formatter:on
     }
